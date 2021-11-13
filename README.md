@@ -20,6 +20,9 @@
      OR 
     react-native run-ios
 
+    Para conseguir executar o emulador android, tive que abrir o powerShell como ADM e executar o camando:
+    npx react-native run-android
+
 ### Dependencies
 
 - [react](https://github.com/facebook/react): JS library for building user interfaces
