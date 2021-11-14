@@ -7,12 +7,19 @@ import Speech from './pages/Speech';
 
 const Drawer = createDrawerNavigator();
 
-export default function Routes() {
+
+const RoutesOptions = () => {
     return(
         <Drawer.Navigator>
-            <Drawer.Screen name="Login" component={Login}/>
             <Drawer.Screen name="Home" component={Home}/>
             <Drawer.Screen name="Speech" component={Speech}/>
         </Drawer.Navigator>
+    )
+  }
+
+
+export default function Routes() {
+    return(
+        <RoutesOptions/>
     )
 }
