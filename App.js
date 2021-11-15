@@ -1,9 +1,11 @@
 // Speech to Text Conversion in React Native – Voice Recognition
 import React, {useState, useEffect} from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
+import { Provider as ParerProvider, TextInput, } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native'
 import Routes from './src/routes';
 import Login from './src/pages/Login'
+import Register from './src/pages/Register'
 import storegeUser from './src/services/storegeUser';
 //import useAsyncStorage  from '@react-native-community/async-storage'
 
@@ -40,6 +42,7 @@ export default function App() {
 		})();
 	}, []) 
 
+	
 	const Carregando =  () => {
 		return(
 			<View style={{justifyContent: 'center', alignItems: 'center', alignContent: 'center'}}>
@@ -47,7 +50,7 @@ export default function App() {
 				<Text>Carregando...</Text>
 			</View>
 		)
-	}
+	} 
 
 	const Router = () => {
 		//useAsyncStorage.setItem("store","rodrigo@gmail.com")
@@ -62,6 +65,15 @@ export default function App() {
 			<Routes/>
 		</NavigationContainer> : <Login />
     }
+
+/*
+const Router = () => {
+	return (
+		<ParerProvider>
+			<TextInput label="Example"></TextInput>
+		</ParerProvider>
+	)
+}  */
 
 	return (
 		<Router/>
