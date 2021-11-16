@@ -13,7 +13,10 @@ import { registerStyle } from '../Register/regidterStyle';
 
 export default function Login() {
     
-    const [modalVisible, setModalVisible] = useState(false);
+    const [modalVisibleRegister, setModalVisibleRegister] = useState(false);
+    const [modalVisibleForgot, setModalVisibleForgot] = useState(false);
+
+    
 
     useEffect(() => {
         (async() => {
@@ -29,23 +32,29 @@ export default function Login() {
 
     const irRegister = () => {
         console.log('REGISTER')
-        setModalVisible(true)
+        setModalVisibleRegister(true)
         
     }
 
-    const register = () => {
-        console.log('registerregisterregister')
+    const irForgot = () => {
+        console.log('forgot() ');
+        setModalVisibleForgot(true)
     }
+
+    
 
     const Login = () => {
         return(
            <View style={loginStyl.container}>
+               {
+                    // INICIO REGISTRAR USUARIO
+                }
                <View style={styles.centeredView}>
                 <Modal
                     animationType="slide"
-                    visible={modalVisible}
+                    visible={modalVisibleRegister}
                     onRequestClose={() => {
-                    setModalVisible(!modalVisible);
+                        setModalVisibleRegister(!modalVisibleRegister);
                     }}
                 >
                     <View >
@@ -59,13 +68,13 @@ export default function Login() {
                         <TextInput label="Password" secureTextEntry={true}/>
                         <TextInput label="Confirm password" secureTextEntry={true} right={<TextInput.Icon name="eye-off-outline" color={registerStyle.icon.color}/>} />
 
-                        <Button mode="contained" style={registerStyle.button} onPress={() => register()}>Register</Button>
+                        <Button mode="contained" style={registerStyle.button} onPress={() => irRegister()}>Register</Button>
                     </View>
                 </ScrollView>
             </SafeAreaView>
                         <Pressable
                         
-                        onPress={() => setModalVisible(!modalVisible)}
+                        onPress={() => setModalVisibleRegister(!modalVisibleRegister)}
                         >
                         </Pressable>
                     </View>
@@ -74,6 +83,45 @@ export default function Login() {
                 
                 </View>
 
+                {
+                    // INICIO RECUPERAR SENHA
+                }
+
+                <View style={styles.centeredView}>
+                <Modal
+                    animationType="slide"
+                    visible={modalVisibleForgot}
+                    onRequestClose={() => {
+                        setModalVisibleForgot(!modalVisibleForgot);
+                    }}
+                >
+                    <View >
+                    <View >
+                    <SafeAreaView>
+                <ScrollView>
+                    <HeaderComponent title="Forgot Password"/>
+                    <View style={registerStyle.container}>
+                        <TextInput label="Email" keyboardType="email-address"/>
+
+                        <Button mode="contained" style={registerStyle.button} onPress={() => forgot()}>Forgot</Button>
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+                        <Pressable
+                        
+                        onPress={() => setModalVisibleForgot(!modalVisibleForgot)}
+                        >
+                        </Pressable>
+                    </View>
+                    </View>
+                </Modal>
+                
+                </View>
+
+                {
+                    // INICIO LOGIN
+                }
+
                <View style={loginStyl.view}>
                     
                 <Card>
@@ -81,7 +129,7 @@ export default function Login() {
                         <Card.Content>
                             <TextInput label="Email" keyboardType="email-address"></TextInput>
                             <TextInput label="Password" secureTextEntry={true}></TextInput>
-                            <Button uppercase={false} style={loginStyl.cardButton}>Forgot password</Button>
+                            <Button uppercase={false} style={loginStyl.cardButton} onPress={irForgot}>Forgot password</Button>
                             <Button mode="contained" style={loginStyl.cardButton} onPress={logando}>Login</Button>
                             <Button style={loginStyl.cardButton} onPress={() => irRegister()}>Register</Button>
 
@@ -92,12 +140,7 @@ export default function Login() {
                 
                </View>
 
-
-               
-
            </View>
-        
-            
         )
     }
 

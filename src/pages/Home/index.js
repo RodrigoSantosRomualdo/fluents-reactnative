@@ -1,10 +1,14 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
+import { Button } from 'react-native-paper';
+import { homeStyle } from './homeStyle';
 
 export default function Home() {
     return(
-        <View>
-            <Text>PAGE Home</Text>
+        <View style={homeStyle.container}>
+            <ScrollView>
+            
+            </ScrollView>
         </View>
     )
 }
