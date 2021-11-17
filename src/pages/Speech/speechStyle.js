@@ -1,15 +1,15 @@
 import { StyleSheet } from "react-native";
 
 
-export const homeStyle = StyleSheet.create({
+export const speechStyle = StyleSheet.create({
     container: {
-        display: "flex",
-        flex : 1,
+        //display: "flex",
+        //flex : 1,
         //width: '100%',
         //justifyContent: 'center',
         //alignItems: 'center',
         //flexDirection: 'row',
-        backgroundColor: "#6877e8"
+        //backgroundColor: "#6877e8"
 
     },
     view: {
