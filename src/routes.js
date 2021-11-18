@@ -16,7 +16,7 @@ const RoutesOptions = () => {
             options={{
                 title: 'O que vamos aprender hoje?',
                 headerStyle: {
-                  backgroundColor: 'rgb(101,37,131)',
+                  backgroundColor: '#6877e8',
                 },
                 headerTintColor: '#fff',
                 headerTitleStyle: {
@@ -24,7 +24,21 @@ const RoutesOptions = () => {
             },
         }}
                 />
-            <Drawer.Screen name="Speech" component={Speech}/>
+
+            <Drawer.Screen name="Exercise Page" component={Speech}
+            options={{
+                title: 'Exercise Page',
+                headerStyle: {
+                  backgroundColor: '#6877e8',
+                },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                fontWeight: 'bold',
+            },
+        }}
+            
+            
+            />
         </Drawer.Navigator>
     )
   }

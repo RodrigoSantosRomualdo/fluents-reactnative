@@ -32,3 +32,26 @@
 ### Questions? 
 
 Feel free to create new issue: https://github.com/LuffyAnshul/React-Native-SpeechToText/issues
+
+Funcionou o ICONES : https://stackoverflow.com/questions/42420931/how-to-use-react-native-vector-icons
+
+BUSCAR OS ICONES:
+
+https://icons.expo.fyi/
+https://oblador.github.io/react-native-vector-icons/
+
+Aqui está a resposta ATUALIZADA completa , basta seguir estas etapas : -
+
+1. npm install react-native-vector-icons --save 2. react-native link 3. react-native link react-native-vector-icons 4. importar Iconusando um destes (de acordo com sua exigência)
+
+   **MaterialCommunityIcons**
+
+    import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+   **Ionicons**
+
+    import Icon from 'react-native-vector-icons/Ionicons';
+
+   **FontAwesome5**
+
+    import Icon from 'react-native-vector-icons/FontAwesome5';
+
