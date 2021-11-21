@@ -13,7 +13,8 @@ import {
 	TouchableHighlight,
 	ScrollView,
 	Button,
-	TouchableOpacity
+	TouchableOpacity,
+	ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
@@ -40,6 +41,7 @@ const Speech = ( props ) => {
 	let url = 'https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54'
 
 	function playSound(url) {
+		setPhoneValue(true)
 		console.log('ENTROU AQUI')
 		audio = new Sound(url,'', (error, sound) => {
 			if (error) {
@@ -47,6 +49,7 @@ const Speech = ( props ) => {
 			}
 			audio.play(() => {
 				audio.release();
+				setPhoneValue(false)
 			})
 		}) 
 	}
@@ -54,6 +57,7 @@ const Speech = ( props ) => {
 		audio.stop(() => {
 			console.log('STOP AUDIP')
 		})
+		setPhoneValue(false)
 	}
 
 	const navigation = useNavigation();
@@ -72,6 +76,8 @@ const Speech = ( props ) => {
 	const [results, setResults] = useState([]);
 	const [partialResults, setPartialResults] = useState([]);
 	const [resultApiString, setResultApiString] = useState();
+	const [microphoneValue, setMicrophoneValue] = useState(false)
+	const [phoneValue, setPhoneValue] = useState(false)
 
 	useEffect(() => {
 		//Setting callbacks for the process status
@@ -108,7 +114,18 @@ const Speech = ( props ) => {
 		//Invoked when an error occurs.
 		//console.log('onSpeechError: ', e);
 		console.log('onSpeechError')
+		setMicrophoneValue(false)
 		setError(JSON.stringify(e.error));
+		return Alert.alert(
+			"Error",
+			"Não foi possível reconhecer sua voz. Vamos tentar novamente",
+			[
+				{
+					text: "Ok",
+					onPress: () => console.log('Tentar novamente')
+				}
+			]
+		)
 	};
 
 	const onSpeechResults = (e) => {
@@ -134,12 +151,13 @@ const Speech = ( props ) => {
 	const onSpeechVolumeChanged = (e) => {
 		//Invoked when pitch that is recognized changed
 		//console.log('onSpeechVolumeChanged: ', e);
-		console.log('onSpeechVolumeChanged')
+		//console.log('onSpeechVolumeChanged')
 		setPitch(e.value);
 	};
 
 	const startRecognizing = async () => {
 		//Starts listening for speech for a specific locale
+		setMicrophoneValue(true)
 		try {
 			await Voice.start('en-US');
 			//await Voice.start('pt-BR');
@@ -255,9 +273,9 @@ const Speech = ( props ) => {
 		console.log(response.data)
 		console.log('USESTATE: ', resultApiString)
 
-
+		setMicrophoneValue(false)
 	}
-
+	// microphoneValue, setMicrophoneValue
 	const AprendizadoSelecionado = () => {
 
 		return (
@@ -266,39 +284,53 @@ const Speech = ( props ) => {
 
 			<View style={{alignItems: 'center', marginTop: '10%' }}>
 				<TouchableOpacity style={{marginTop: '5%', backgroundColor: '#E5E5E5', padding: 10, borderRadius: 5, width: '90%'}}>
-					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '500', color: "#0b0e26", fontSize: 25}}>Days of the week</Text>
+					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '500', color: "#0b0e26", fontSize: 20}}>The day before yesterday</Text>
 					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '500', color: "#0b0e26", fontSize: 12}}>Dias da semana</Text>
 				</TouchableOpacity>
 
 
 				<TouchableOpacity style={{marginTop: '5%', backgroundColor: '#E5E5E5', padding: 7, borderRadius: 5, width: '88%',}}>
-					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '300', color: "#0b0e26", fontSize: 25}}>Dêis óv dâ uík</Text>
+					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '300', color: "#0b0e26", fontSize: 18}}>Dêis óv dâ uík</Text>
 				</TouchableOpacity>
 
 			</View>
 
 			<View style={{flexDirection: 'row', justifyContent: 'space-around', marginTop: '35%'}}>
 					
-					<TouchableOpacity onPress={teste}>
-						<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
-					</TouchableOpacity>
-					<TouchableOpacity onPress={()=> {return playSound('https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54')}}>
-						<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
-					</TouchableOpacity>
-					<TouchableOpacity onPress={()=> {return stopSound()}}>
-						<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
-					</TouchableOpacity>
+					{phoneValue === false ? 
+					<View style={styles.backPhone}>
+						<TouchableOpacity onPress={()=> {return playSound('https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54')}}>
+						
+							<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
+							
+						</TouchableOpacity>
+						
+						</View>  :  <View style={styles.backPhone}>
+						 <FontAwesome5 name="assistive-listening-systems" size={25} color="#00ff00" style={{position: 'absolute', 
+						alignItems: 'center', justifyContent: 'center', marginTop: '18%'}} />
+
+						<TouchableOpacity onPress={()=> {return playSound('https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54')}}>
+
+							<FontAwesome5 name="headphones-alt" size={75} color="#E5E5E5" />
+							
+						</TouchableOpacity>
+
+						</View> }
 
 
-					
 
+					<View style={[microphoneValue ? styles.backMicrofoneTrue : styles.backMicrofoneFalse]}>
+						{microphoneValue && <ActivityIndicator style={{position: 'absolute'}} size="large" color="#00ff00" />}
 					<TouchableOpacity onPress={startRecognizing}>
 						<FontAwesome5 name="microphone-alt" size={60} color="#E5E5E5" />
 					</TouchableOpacity>
-					
+					</View>
 			</View>
 
-			{ /* <TouchableOpacity onPress={startRecognizing}>
+			{ /* 
+				phoneValue, setPhoneValue
+				
+			<TouchableOpacity onPress={startRecognizing}>
 						<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
 					</TouchableOpacity>
 
@@ -505,4 +537,20 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		color: '#B0171F',
 	},
+	backMicrofoneTrue : {
+		backgroundColor: '#4cba2f', 
+		width: '20%', 
+		borderRadius: 50, 
+		alignItems: 'center'
+		
+	},
+	backMicrofoneFalse : {
+		width: '20%', 
+		borderRadius: 50, 
+		alignItems: 'center'
+	},
+	backPhone : {
+		width: '25%', 
+		alignItems: 'center'
+	}
 });

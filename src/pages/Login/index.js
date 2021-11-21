@@ -65,7 +65,7 @@ export default function Login() {
                     <View style={registerStyle.container}>
                         <TextInput label="Name"/>
                         <TextInput label="Email" keyboardType="email-address"/>
-                        <TextInput label="Password" secureTextEntry={true}/>
+                        <TextInput label="Password" secureTextEntry={true}  right={<TextInput.Icon name="eye-off-outline" color={registerStyle.icon.color}/>}/>
                         <TextInput label="Confirm password" secureTextEntry={true} right={<TextInput.Icon name="eye-off-outline" color={registerStyle.icon.color}/>} />
 
                         <Button mode="contained" style={registerStyle.button} onPress={() => irRegister()}>Register</Button>

@@ -60,6 +60,7 @@ export default function App() {
         if (!loading) {
             return <Carregando/>
         } 
+		console.log('user TEM O QUE???? ', user)
         return user ? 
 		<NavigationContainer> 
 			<Routes/>
