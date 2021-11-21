@@ -1,6 +1,7 @@
 // Speech to Text Conversion in React Native – Voice Recognition
 import React, {useState, useEffect} from 'react';
 import Tts from 'react-native-tts';
+import apiComparaText from '../../services/compareText';
 import Home from '../Home'
 import {
 	SafeAreaView,
@@ -17,19 +18,51 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-
+import SoundPlayer from 'react-native-sound-player'
+import Sound from 'react-native-sound';
 import { speechStyle } from './speechStyle'
 
 import Voice from 'react-native-voice';
-
+	let audio;
+	
 const Speech = ( props ) => {
+	const audioList = [
+	/*	{ // CASO QUEIRA PASSAR AUDIO LOCAL MP3
+			title: 'Play mp3 from local',
+			isRequired: true,
+			url: require('./nodeDoArquivo.mp3')
+		} */
+		{
+			title: 'Play mp3 from local',
+			url:'https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54'
+		}
+	]
+	let url = 'https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54'
+
+	function playSound(url) {
+		console.log('ENTROU AQUI')
+		audio = new Sound(url,'', (error, sound) => {
+			if (error) {
+				alert('error'+error+message)
+			}
+			audio.play(() => {
+				audio.release();
+			})
+		}) 
+	}
+	function stopSound() {
+		audio.stop(() => {
+			console.log('STOP AUDIP')
+		})
+	}
+
 	const navigation = useNavigation();
-	console.log( props)
+	//console.log( props)
 
 	if (!props.route.params?.aprender) {
-		console.log('props: NÃO EXISTE PROPS ')
+		//console.log('props: NÃO EXISTE PROPS ')
 	} else {
-		console.log('props: ', props.route.params.aprender)
+		//console.log('props: ', props.route.params.aprender)
 	}
 
 	const [pitch, setPitch] = useState('');
@@ -38,6 +71,7 @@ const Speech = ( props ) => {
 	const [started, setStarted] = useState('');
 	const [results, setResults] = useState([]);
 	const [partialResults, setPartialResults] = useState([]);
+	const [resultApiString, setResultApiString] = useState();
 
 	useEffect(() => {
 		//Setting callbacks for the process status
@@ -56,37 +90,51 @@ const Speech = ( props ) => {
 
 	const onSpeechStart = (e) => {
 		//Invoked when .start() is called without error
-		console.log('onSpeechStart: ', e);
+		//console.log('onSpeechStart: ', e);
+		console.log('onSpeechStart')
 		setStarted('√');
 	};
 
 	const onSpeechEnd = (e) => {
 		//Invoked when SpeechRecognizer stops recognition
-		console.log('onSpeechEnd: ', e);
+		//console.log('onSpeechEnd: ', e);
+		//console.log('FINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUI')
+		//console.log('VALUE results: ', results)
+		console.log('onSpeechEnd')
 		setEnd('√');
 	};
 
 	const onSpeechError = (e) => {
 		//Invoked when an error occurs.
-		console.log('onSpeechError: ', e);
+		//console.log('onSpeechError: ', e);
+		console.log('onSpeechError')
 		setError(JSON.stringify(e.error));
 	};
 
 	const onSpeechResults = (e) => {
 		//Invoked when SpeechRecognizer is finished recognizing
-		console.log('onSpeechResults: ', e);
+		//console.log('onSpeechResults: ', e);
+		console.log('onSpeechResults')
+		const textingles =  "days of the week";
 		setResults(e.value);
+		
+		console.log('CHAMOU API AGORA', )
+		
+		compareText(textingles, e.value)
 	};
 
 	const onSpeechPartialResults = (e) => {
 		//Invoked when any results are computed
-		console.log('onSpeechPartialResults: ', e);
+		//console.log('onSpeechPartialResults: ', e);
 		setPartialResults(e.value);
+		console.log('onSpeechPartialResults')
+		//compareText()
 	};
 
 	const onSpeechVolumeChanged = (e) => {
 		//Invoked when pitch that is recognized changed
-		console.log('onSpeechVolumeChanged: ', e);
+		//console.log('onSpeechVolumeChanged: ', e);
+		console.log('onSpeechVolumeChanged')
 		setPitch(e.value);
 	};
 
@@ -101,6 +149,7 @@ const Speech = ( props ) => {
 			setResults([]);
 			setPartialResults([]);
 			setEnd('');
+			console.log('startRecognizing')
 		} catch (e) {
 			//eslint-disable-next-line
 			console.error(e);
@@ -111,9 +160,10 @@ const Speech = ( props ) => {
 		//Stops listening for speech
 		try {
 			await Voice.stop();
+			console.log('stopRecognizing')
 		} catch (e) {
 			//eslint-disable-next-line
-			console.error(e);
+			//console.error(e);
 		}
 	};
 
@@ -121,9 +171,10 @@ const Speech = ( props ) => {
 		//Cancels the speech recognition
 		try {
 			await Voice.cancel();
+			console.log('cancelRecognizing')
 		} catch (e) {
 			//eslint-disable-next-line
-			console.error(e);
+			//console.error(e);
 		}
 	};
 
@@ -137,15 +188,16 @@ const Speech = ( props ) => {
 			setResults([]);
 			setPartialResults([]);
 			setEnd('');
+			console.log('destroyRecognizer')
 		} catch (e) {
 			//eslint-disable-next-line
-			console.error(e);
+			//console.error(e);
 		}
 	};
 
 	const handleVoice = ttsText => {
 		//Tts.voices().then(voices => console.log(voices));
-		Tts.engines().then(engines => console.log('engines: ',engines));
+		//Tts.engines().then(engines => console.log('engines: ',engines));
 		//Tts.requestInstallData();
 
 		Tts.setDefaultLanguage('en-US');
@@ -153,6 +205,57 @@ const Speech = ( props ) => {
 		Tts.setDefaultPitch(0.9);
 		//Tts.speak(`If this button doesn't look right for your app`)	
 		Tts.speak(`Days of the week`);
+	}
+
+	const  testeDois = () => {
+		try {
+			// play the file tone.mp3
+			//SoundPlayer.playSoundFile('tone', 'mp3')
+			// or play from url
+			console.log('CHAMOU AQUI')
+			SoundPlayer.addEventListener('FinishedPlaying')
+			SoundPlayer.playUrl('https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54')
+			SoundPlayer.release();
+			console.log('INICIOU STOP')
+			//SoundPlayer.stop();
+			console.log('FINALIZOU STOP STOP')
+		} catch (e) {
+			console.log(`cannot play the sound file`, e)
+		}
+	}
+
+	const  teste = () => {
+		try {
+			// play the file tone.mp3
+			//SoundPlayer.playSoundFile('tone', 'mp3')
+			// or play from url
+			//console.log('CHAMOU AQUI')
+			
+			SoundPlayer.playUrl('https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54', null)
+			SoundPlayer.resume()
+		//	console.log('INICIOU STOP')
+			//SoundPlayer.stop();
+		//	console.log('FINALIZOU STOP STOP')
+		} catch (e) {
+		//	console.log(`cannot play the sound file`, e)
+		}
+	}
+
+	const compareText = async (textIngles,textUserString) => {
+		// resultApiString, setResultApiString
+		console.log('CHAMOU COMPARE TEXT' , textIngles)
+		console.log('results textString: ', textUserString)
+		let teste = ["days of the week"]
+		const response = await  apiComparaText.post("",
+		 {
+			textIngles: textIngles, 
+			speechTextUser : textUserString
+		})
+		setResultApiString(response.data)
+		console.log(response.data)
+		console.log('USESTATE: ', resultApiString)
+
+
 	}
 
 	const AprendizadoSelecionado = () => {
@@ -176,9 +279,18 @@ const Speech = ( props ) => {
 
 			<View style={{flexDirection: 'row', justifyContent: 'space-around', marginTop: '35%'}}>
 					
-					<TouchableOpacity>
+					<TouchableOpacity onPress={teste}>
 						<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
 					</TouchableOpacity>
+					<TouchableOpacity onPress={()=> {return playSound('https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54')}}>
+						<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
+					</TouchableOpacity>
+					<TouchableOpacity onPress={()=> {return stopSound()}}>
+						<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
+					</TouchableOpacity>
+
+
+					
 
 					<TouchableOpacity onPress={startRecognizing}>
 						<FontAwesome5 name="microphone-alt" size={60} color="#E5E5E5" />
