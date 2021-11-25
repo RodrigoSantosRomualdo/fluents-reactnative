@@ -1,7 +1,7 @@
 import React, { useState,useEffect} from 'react';
-import { useFormik } from 'formik';
+import { Formik, useFormik } from 'formik';
 import { Provider as ParerProvider, Card, TextInput, Button} from 'react-native-paper';
-import { Alert, SafeAreaView, StyleSheet, View, Text,Modal,Pressable, ScrollView } from 'react-native';
+import { Alert, StyleSheet, SafeAreaView, View, Text,Modal,Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { useAsyncStorage } from '@react-native-community/async-storage'
 import * as apiLogin from '../../services/apiLogin';
 import { useAuth } from '../../services/auth';
@@ -10,11 +10,25 @@ import { loginStyl } from './loginStyle';
 import { theme } from '../../../appStyle';
 import { HeaderComponent } from '../../components/Header';
 import { registerStyle } from '../Register/regidterStyle';
+import apiUsers from '../../services/users';
+import storegeUser from '../../services/storegeUser';
+import App from './../../../App';
+import Home from './../Home';
+import { NavigationContainer } from '@react-navigation/native'
+import Routes from '../../routes';
+//import RNRestart from 'react-native-restart';
 
-export default function Login() {
+export default function Login({navigation}) {
     
     const [modalVisibleRegister, setModalVisibleRegister] = useState(false);
     const [modalVisibleForgot, setModalVisibleForgot] = useState(false);
+    const [state, setState] = useState(false);
+    const [resultUser, setResultUser] = useState();
+    const [nome, setNome] = React.useState('');
+    //const [textInputValue, setTextInputValue] = React.useState('');
+    //const [email, setEmail] = useState('');
+    //const [password, setPassword] = useState();
+    //const [confirmPass, setConfirmPass] = useState();
 
     
 
@@ -26,12 +40,14 @@ export default function Login() {
     },[])
     
 
-    const logando = () => {
-        Alert.alert("Login")
+    const logando = (password) => {
+        console.log('email ',  )
+        console.log('password ', )
+        //Alert.alert("Login")
     }
 
     const irRegister = () => {
-        console.log('REGISTER')
+        console.log('REGISTER ', )
         setModalVisibleRegister(true)
         
     }
@@ -41,9 +57,83 @@ export default function Login() {
         setModalVisibleForgot(true)
     }
 
-    
+    function carregarPerfilLogin() {
+        console.log('CARREGAR PERFIL')
+  
+       // RNRestart.Restart();
+      } 
+     
 
     const Login = () => {
+
+        const formik = useFormik({
+            initialValues: ({email: "" , password: ""}),
+            onSubmit: async values => {
+
+                try {
+                    const result = await apiUsers.post('login',{
+                        email: "rodriogo.s.romualdo@gmail.com",
+                        password: "12345678"
+                    })
+                    console.log('result API: ',result.data.status)
+                    console.log('result API 2: ',result.data.email)
+                    if (result.data.status === "FAILED") {
+                        console.log("Invalid credentials")
+                        return Alert.alert(
+                            "Error",
+                            "Invalid credentials",
+                            [
+                                {
+                                    text: "Ok",
+                                    onPress: () => console.log('Tentar novamente')
+                                }
+                            ]
+                        )
+                    } else if (result.data.status === "SUCCESS" && result.data.email !== undefined) {
+                        console.log('CAIU NO ELSE IF EMAIL')
+
+                    
+                        //storegeUser.armazenarUserLogin('store', result.data.email)
+                        return Alert.alert(
+                            //title
+                            'Atenção',
+                            //body
+                            `Login realizado com sucesso, clique no Ok para carregar o seu perfil!`,
+                            [
+                              {
+                                text: 'Ok', onPress: (() => carregarPerfilLogin()) ,
+                              },
+                            ],
+                        )
+                        
+                        
+		
+                    }
+                    
+                   // storegeUser.armazenarUserLogin('store', 'rodrigo@gmail.com')
+                } catch (error) {
+                    return Alert.alert(
+                        "Error",
+                        "Ocorreu um erro, tente novamente",
+                        [
+                            {
+                                text: "Ok",
+                                onPress: () => console.log('Tentar novamente')
+                            }
+                        ]
+                    )
+                }
+                console.log('... ', values)
+            }
+        })
+
+
+        /*
+        React.useEffect(() => {
+            console.log('formik.values: ', formik.values)
+        }, [formik.values]) */
+
+
         return(
            <View style={loginStyl.container}>
                {
@@ -63,10 +153,12 @@ export default function Login() {
                 <ScrollView>
                     <HeaderComponent title="Register"/>
                     <View style={registerStyle.container}>
-                        <TextInput label="Name"/>
+                        <TextInput label="Name"
+                         />
                         <TextInput label="Email" keyboardType="email-address"/>
                         <TextInput label="Password" secureTextEntry={true}  right={<TextInput.Icon name="eye-off-outline" color={registerStyle.icon.color}/>}/>
                         <TextInput label="Confirm password" secureTextEntry={true} right={<TextInput.Icon name="eye-off-outline" color={registerStyle.icon.color}/>} />
+                        
 
                         <Button mode="contained" style={registerStyle.button} onPress={() => irRegister()}>Register</Button>
                     </View>
@@ -81,7 +173,7 @@ export default function Login() {
                     </View>
                 </Modal>
                 
-                </View>
+            </View>
 
                 {
                     // INICIO RECUPERAR SENHA
@@ -127,12 +219,26 @@ export default function Login() {
                 <Card>
                         <Card.Title title="Fluents" titleStyle={loginStyl.cardTitle} ></Card.Title>
                         <Card.Content>
-                            <TextInput label="Email" keyboardType="email-address"></TextInput>
-                            <TextInput label="Password" secureTextEntry={true}></TextInput>
-                            <Button uppercase={false} style={loginStyl.cardButton} onPress={irForgot}>Forgot password</Button>
-                            <Button mode="contained" style={loginStyl.cardButton} onPress={logando}>Login</Button>
-                            <Button style={loginStyl.cardButton} onPress={() => irRegister()}>Register</Button>
-
+                                        <TextInput label="Email" 
+                                        keyboardType="email-address"
+                                        value={formik.values.email}
+                                        onChangeText={formik.handleChange('email')} />
+                                        
+                                    <TextInput label="Password" secureTextEntry={true} 
+                                    value={formik.values.password}
+                                    onChangeText={formik.handleChange('password')}
+                                    />
+                                    <Button uppercase={false} style={loginStyl.cardButton} onPress={irForgot}>Forgot password</Button>
+                                    <Button mode="contained" style={loginStyl.cardButton} onPress={formik.handleSubmit}>
+                                    {formik.isSubmitting ? (<ActivityIndicator color="#FFF"  />) : (<Text>Login</Text>)}   
+                                    
+                                    </Button>
+                                    {state && <Button style={loginStyl.cardText}>{state}</Button>} 
+                                    
+                                    <Button style={loginStyl.cardButton} onPress={() => irRegister()}>Register</Button>
+                                 
+                                   
+                                
 
                         </Card.Content>
                 </Card>
