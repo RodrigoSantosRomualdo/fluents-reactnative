@@ -2,6 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import Tts from 'react-native-tts';
 import apiComparaText from '../../services/compareText';
+import apiTemas from '../../services/temas';
 import Home from '../Home'
 import {
 	SafeAreaView,
@@ -25,20 +26,67 @@ import { speechStyle } from './speechStyle'
 
 import Voice from 'react-native-voice';
 	let audio;
+	let textInglesComparacao;
 	
 const Speech = ( props ) => {
-	const audioList = [
-	/*	{ // CASO QUEIRA PASSAR AUDIO LOCAL MP3
-			title: 'Play mp3 from local',
-			isRequired: true,
-			url: require('./nodeDoArquivo.mp3')
-		} */
-		{
-			title: 'Play mp3 from local',
-			url:'https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54'
-		}
-	]
-	let url = 'https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54'
+	const [pages, setPages] = useState(1)
+	const [nivelDisponivel, setNivelDisponivel] = useState();
+	const [nivelDisponivelString, setNivelDisponivelString] = useState();
+	const [exercicio, setExercicio] = useState();
+
+	const [pitch, setPitch] = useState('');
+	const [error, setError] = useState('');
+	const [end, setEnd] = useState('');
+	const [started, setStarted] = useState('');
+	const [results, setResults] = useState([]);
+	const [partialResults, setPartialResults] = useState([]);
+	const [resultApiString, setResultApiString] = useState();
+	const [microphoneValue, setMicrophoneValue] = useState(false)
+	const [phoneValue, setPhoneValue] = useState(false)
+	const [valueText, setValueText] = useState()
+	
+	async function resultTemas() {
+		const result = await apiTemas.post('atividade/buscar-atividade', {
+			tema_aprendizado: props?.route.params?.aprender,
+			nivel_disponivel: props?.route.params?.nivel_disponivel,
+			ordem: pages
+		})
+		await setNivelDisponivel(props?.route.params?.nivel_number)
+		await setNivelDisponivelString(props?.route.params?.nivel_disponivel)
+		console.log('data  ------------>>>>>>>>>>>>>...',result.data)
+		return setExercicio(result.data);
+		//console.log('exercicio --------------->>>>>>>>>>>>>> ', exercicio)
+
+	}
+
+	useEffect(() => {
+		
+		resultTemas()
+	}, [])
+
+
+	/*
+	useEffect(() => {
+        (async() => {
+			console.log('-->>> prosp name: ' ,props.route)
+			console.log('-->>> prosp aprender: ' ,props?.route.params?.aprender)
+			console.log('-->>> prosp nivel_disponivel: ' ,props?.route.params?.nivel_disponivel)
+			console.log("INICIOU O USEEFFECT CHAMADA API")
+			const result = await apiTemas.post('atividade/buscar-atividade', {
+				tema_aprendizado: props?.route.params?.aprender,
+				nivel_disponivel: props?.route.params?.nivel_disponivel,
+				ordem: pages
+			})
+			setNivelDisponivel(props?.route.params?.nivel_number)
+			setNivelDisponivelString(props?.route.params?.nivel_disponivel)
+			console.log('data  ------------>>>>>>>>>>>>>...',result.data)
+			setExercicio(result.data);
+			console.log('exercicio --------------->>>>>>>>>>>>>> ', exercicio) 
+        
+        })();
+    },[])  */
+	//props?.route.params?.aprender,props?.route.params?.nivel_disponivel
+
 
 	function playSound(url) {
 		setPhoneValue(true)
@@ -69,15 +117,7 @@ const Speech = ( props ) => {
 		//console.log('props: ', props.route.params.aprender)
 	}
 
-	const [pitch, setPitch] = useState('');
-	const [error, setError] = useState('');
-	const [end, setEnd] = useState('');
-	const [started, setStarted] = useState('');
-	const [results, setResults] = useState([]);
-	const [partialResults, setPartialResults] = useState([]);
-	const [resultApiString, setResultApiString] = useState();
-	const [microphoneValue, setMicrophoneValue] = useState(false)
-	const [phoneValue, setPhoneValue] = useState(false)
+	
 
 	useEffect(() => {
 		//Setting callbacks for the process status
@@ -128,23 +168,23 @@ const Speech = ( props ) => {
 		)
 	};
 
-	const onSpeechResults = (e) => {
+	const onSpeechResults = async (e) => {
 		//Invoked when SpeechRecognizer is finished recognizing
 		//console.log('onSpeechResults: ', e);
-		console.log('onSpeechResults')
-		const textingles =  "days of the week";
+		//console.log('onSpeechResults --------------->>>>>>> ')
+		//const textingles =  "days of the week";
 		setResults(e.value);
 		
-		console.log('CHAMOU API AGORA', )
-		
-		compareText(textingles, e.value)
+		console.log('CHAMOU API AGORA valueText ------->>>>>>...',  textInglesComparacao  )
+		//let text = await 'teste' 
+		compareText(textInglesComparacao, e.value)
 	};
 
 	const onSpeechPartialResults = (e) => {
 		//Invoked when any results are computed
 		//console.log('onSpeechPartialResults: ', e);
 		setPartialResults(e.value);
-		console.log('onSpeechPartialResults')
+		console.log('onSpeechPartialResults' , )
 		//compareText()
 	};
 
@@ -155,18 +195,25 @@ const Speech = ( props ) => {
 		setPitch(e.value);
 	};
 
-	const startRecognizing = async () => {
+	const startRecognizing = async (textIngles) => {
+		textInglesComparacao = textIngles;
 		//Starts listening for speech for a specific locale
+		//await setValueText(textIngles)
+		//console.log('textIngles: ', textIngles)
 		setMicrophoneValue(true)
+		
+		
 		try {
 			await Voice.start('en-US');
 			//await Voice.start('pt-BR');
+			await setValueText('ATUALIZADO AQUI')
 			setPitch('');
 			setError('');
 			setStarted('');
 			setResults([]);
 			setPartialResults([]);
 			setEnd('');
+			console.log('valueTextvalueTextvalueTextvalueText ', valueText)
 			console.log('startRecognizing')
 		} catch (e) {
 			//eslint-disable-next-line
@@ -259,21 +306,106 @@ const Speech = ( props ) => {
 		}
 	}
 
-	const compareText = async (textIngles,textUserString) => {
+	const compareText = async (textInglesComparacao,textUserString) => {
 		// resultApiString, setResultApiString
-		console.log('CHAMOU COMPARE TEXT' , textIngles)
+		//console.log('CHAMOU COMPARE TEXT' , textIngles)
 		console.log('results textString: ', textUserString)
-		let teste = ["days of the week"]
+		//let teste = ["days of the week"]
+		//console.log('exercicio?.nome_exercicio_ingles: ', exercicio.nome_exercicio_ingles)
+	
+		console.log('DADOS DO INGLES ', textInglesComparacao)
 		const response = await  apiComparaText.post("",
 		 {
-			textIngles: textIngles, 
+			textIngles: textInglesComparacao, 
 			speechTextUser : textUserString
 		})
 		setResultApiString(response.data)
 		console.log(response.data)
-		console.log('USESTATE: ', resultApiString)
+		console.log('USESTATE: ', resultApiString) 
 
 		setMicrophoneValue(false)
+	}
+
+	const funcaoNext = () => {
+		console.log("EXECUTOU A FUNCAO NEXT")
+		const soma = pages + 1;
+		setPages(soma)
+		buscarExercicio(soma)
+	}
+
+	const funcaoPreveios = () => {
+		console.log("EXECUTOU A FUNCAO funcaoPreveios ===================>>>>>>>>>>>>>>>>>>>.    pages    ", pages)
+		if (pages === 0) {
+			return Alert.alert(
+				"Atenção", "Você está no exericio 1", [
+					{ text: "Ok", onPress: () => console.log('Tentar novamente') } ] )
+		} else {
+			const subtracao = pages - 1;
+			setPages(subtracao)
+			console.log("BUSCANDO PAGES ", pages)
+			buscarExercicio(subtracao)
+		}
+	}
+
+	const buscarExercicio = async (ValorPages) => {
+		const result = await apiTemas.post('atividade/buscar-atividade', {
+			tema_aprendizado: props?.route.params?.aprender,
+			nivel_disponivel: nivelDisponivelString,
+			ordem: ValorPages
+		})
+		
+		console.log('data  ------------>>>>>>>>>>>>>...',result.data)
+		if (result.data.message === "Nivel Finalizado!") {
+			let resultSomaNivel = await nivelDisponivel + 1;
+			let stringResultSomaNivel = await `Nível ${resultSomaNivel}`
+			//const resultNivelString = `Nível ${nivelDisponivel}`;
+			console.log('----------------------->>>> resultSomaNivel ', nivelDisponivel , ' STRING: ', stringResultSomaNivel )
+			await setNivelDisponivelString(stringResultSomaNivel)
+			await setNivelDisponivel(resultSomaNivel)
+			await setPages(1)
+			
+			//await setNivelDisponivel(resultSomaNivel)
+			//await setNivelDisponivel(resultNivelString)
+			//console.log('->>>>>>>>.. nivelDisponivelString  ', nivelDisponivelString)
+			// CRIAR UM ALERTA INFORMANDO QUE MUDOU DE NIVEL
+			console.log('O QUE ESTÀ SENDO ENVIADO PARA API DE NIVEL:::: ', stringResultSomaNivel)
+			const result = await apiTemas.post('atividade/buscar-atividade', {
+				tema_aprendizado: props?.route.params?.aprender,
+				nivel_disponivel: stringResultSomaNivel,
+				ordem: 1
+			})
+
+
+			//console.log("CARREGOU O EXERCICIO CORRETO???????????")
+			//await setNivelDisponivelString('')
+			//await setNivelDisponivel('')
+			//resultSomaNivel = '';
+			//stringResultSomaNivel = '';
+			// Nesse IF quer dizer que não existe mais o nivel para aprender
+			if (result.data.message === "Nivel Finalizado!") {
+			/*	const result = await apiTemas.post('atividade/buscar-atividade', {
+					tema_aprendizado: props?.route.params?.aprender,
+					nivel_disponivel: props?.route.params?.nivel_disponivel,
+					ordem: 1
+				})
+				resultSomaNivel = '';
+				stringResultSomaNivel = '';
+				await setExercicio(result.data)  */
+				return Alert.alert(
+					"Parabéns", `Você finalizou o tema ${props?.route.params?.aprender}. Vamos selecionar um novo tema para aprender!`, 
+[{ text: "Ok", onPress: () => navigation.reset({index: 0, routes: [{name: 'O que vamos aprender hoje?', params: { renderizar: true}  }],  }) 
+				} ] )
+
+					// [{ text: "Ok", onPress: () => navigation.navigate('O que vamos aprender hoje?', { renderizar: true} ) } ] )
+			} else {
+				setExercicio(result.data) 
+			}
+			
+
+		} else {
+			setExercicio(result.data)
+		}
+		
 	}
 	// microphoneValue, setMicrophoneValue
 	const AprendizadoSelecionado = () => {
@@ -284,13 +416,13 @@ const Speech = ( props ) => {
 
 			<View style={{alignItems: 'center', marginTop: '10%' }}>
 				<TouchableOpacity style={{marginTop: '5%', backgroundColor: '#E5E5E5', padding: 10, borderRadius: 5, width: '90%'}}>
-					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '500', color: "#0b0e26", fontSize: 20}}>The day before yesterday</Text>
-					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '500', color: "#0b0e26", fontSize: 12}}>Dias da semana</Text>
+					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '500', color: "#0b0e26", fontSize: 20}}>{exercicio?.nome_exercicio_ingles}</Text>
+					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '500', color: "#0b0e26", fontSize: 12}}>{exercicio?.nome_exercicio_portugues}</Text>
 				</TouchableOpacity>
 
 
 				<TouchableOpacity style={{marginTop: '5%', backgroundColor: '#E5E5E5', padding: 7, borderRadius: 5, width: '88%',}}>
-					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '300', color: "#0b0e26", fontSize: 18}}>Dêis óv dâ uík</Text>
+					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '300', color: "#0b0e26", fontSize: 18}}>{exercicio?.nome_exercicio_fala}</Text>
 				</TouchableOpacity>
 
 			</View>
@@ -299,7 +431,7 @@ const Speech = ( props ) => {
 					
 					{phoneValue === false ? 
 					<View style={styles.backPhone}>
-						<TouchableOpacity onPress={()=> {return playSound('https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54')}}>
+						<TouchableOpacity onPress={()=> {return playSound(`https://stream-audio-react-native.herokuapp.com/tracks/${exercicio?.id_audio}`)}}>
 						
 							<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
 							
@@ -309,7 +441,7 @@ const Speech = ( props ) => {
 						 <FontAwesome5 name="assistive-listening-systems" size={25} color="#00ff00" style={{position: 'absolute', 
 						alignItems: 'center', justifyContent: 'center', marginTop: '18%'}} />
 
-						<TouchableOpacity onPress={()=> {return playSound('https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54')}}>
+						<TouchableOpacity onPress={()=> {return playSound(`https://stream-audio-react-native.herokuapp.com/tracks/${exercicio?.id_audio}`)}}>
 
 							<FontAwesome5 name="headphones-alt" size={75} color="#E5E5E5" />
 							
@@ -317,11 +449,13 @@ const Speech = ( props ) => {
 
 						</View> }
 
+						
+
 
 
 					<View style={[microphoneValue ? styles.backMicrofoneTrue : styles.backMicrofoneFalse]}>
 						{microphoneValue && <ActivityIndicator style={{position: 'absolute'}} size="large" color="#00ff00" />}
-					<TouchableOpacity onPress={startRecognizing}>
+					<TouchableOpacity onPress={() => startRecognizing(exercicio?.nome_exercicio_ingles)}>
 						<FontAwesome5 name="microphone-alt" size={60} color="#E5E5E5" />
 					</TouchableOpacity>
 					</View>
@@ -347,10 +481,17 @@ const Speech = ( props ) => {
 				
             </ScrollView>
 			<View style={{flexDirection: 'row', justifyContent: 'space-between', marginRight: '1%', marginLeft: '1%', marginBottom: '1%'}}>
-					<TouchableOpacity style={{backgroundColor: '#E5E5E5', padding: 10, borderRadius: 5}}>
-						<Text style={{fontSize: 20, fontWeight: '700', color: "#0b0e26"}}>Previous</Text>
-					</TouchableOpacity>
-					<TouchableOpacity style={{backgroundColor: '#E5E5E5', padding: 10, borderRadius: 5, width: '30%', alignItems: 'center'}}>
+				{pages !== 1 ? (
+					<TouchableOpacity onPress={funcaoPreveios} style={{backgroundColor: '#E5E5E5', padding: 10, borderRadius: 5}}>
+					<Text style={{fontSize: 20, fontWeight: '700', color: "#0b0e26"}}>Previous</Text>
+					</TouchableOpacity> ) : (
+						<TouchableOpacity>
+						
+						</TouchableOpacity>
+					)
+				}
+					
+					<TouchableOpacity onPress={funcaoNext} style={{backgroundColor: '#E5E5E5', padding: 10, borderRadius: 5, width: '30%', alignItems: 'center'}}>
 						<Text style={{fontSize: 20, fontWeight: '700', color: "#0b0e26"}}>Next</Text>
 					</TouchableOpacity>
 				</View>
@@ -470,6 +611,8 @@ const Speech = ( props ) => {
 
 				/>
 
+
+
 			</View>
 			</View>
 		)
@@ -554,3 +697,17 @@ const styles = StyleSheet.create({
 		alignItems: 'center'
 	}
 });
+
+
+const audioList = [
+	/*	{ // CASO QUEIRA PASSAR AUDIO LOCAL MP3
+			title: 'Play mp3 from local',
+			isRequired: true,
+			url: require('./nodeDoArquivo.mp3')
+		} */
+		{
+			title: 'Play mp3 from local',
+			url:'https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54'
+		}
+	]
+	let url = 'https://stream-audio-react-native.herokuapp.com/tracks/619707781808ae261848eb54'

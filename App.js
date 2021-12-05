@@ -35,7 +35,7 @@ export default function App({navigation}) {
 			const regex_validation = /^([a-z]){1,}([a-z0-9._-]){1,}([@]){1}([a-z]){2,}([.]){1}([a-z]){2,}([.]?){1}([a-z]?){2,}$/i;
 			const validacaoConta = /([@]){1}/i;
 			//storegeUser.armazenarUserLogin('store', 'rodrigo@gmail.com')
-			storegeUser.removeUserLogin('store')
+			//storegeUser.removeUserLogin('store')
 			const result = await storegeUser.buscarUserLogin('store');
 			console.log('result STORAGE: ', result)
 			console.log("É email válido? Resposta: " + validacaoConta.test(result))
@@ -132,7 +132,7 @@ export default function App({navigation}) {
 					
 						const resultCreate = await apiUsers.post('create',{
 							nome: "Rodrigo Romualdo",
-							email: "raaoooooooooo@gmail.com",
+							email: "rodrigo.s.romualdo@gmail.com",
 							password: "12345678",
 							passwordRegister: "12345678"
 						})
@@ -141,8 +141,8 @@ export default function App({navigation}) {
 							console.log('resultCreate.data.FAILED === FAILED')
 							await setCreateFailed("Error e-mail já cadastrado")
 						} else if (resultCreate.data.status === "SUCCESS") {
-							console.log('ALTERAR ISSO AQUI resultCreate.data[0] ',resultCreate.data.data)
-							storegeUser.armazenarUserLogin('store', resultCreate.data.data)
+							console.log('ALTERAR ISSO AQUI resultCreate.data[0] ',resultCreate.data.email)
+							storegeUser.armazenarUserLogin('store', resultCreate.data.email)
 							setVerificacaoLogin('true')
 						}
 
@@ -151,10 +151,10 @@ export default function App({navigation}) {
 
 					else if (values.email.length > 0) {
                     const resultLogin = await apiUsers.post('login',{
-                        email: "rodriogo.s.romualdo@gmail.com",
+                        email: "rodrigo.s.romualdo@gmail.com",
                         password: "12345678"
                     })
-                    console.log('result API: ',resultLogin.data.status)
+                    console.log('result API: ',resultLogin.data)
                     console.log('result API 2: ',resultLogin.data.email)
                     if (resultLogin.data.status === "FAILED") {
                         console.log("Invalid credentials")
@@ -172,7 +172,7 @@ export default function App({navigation}) {
                         console.log('CAIU NO ELSE IF EMAIL')
 
                     
-                        //storegeUser.armazenarUserLogin('store', resultLogin.data.email)
+                        storegeUser.armazenarUserLogin('store', resultLogin.data.email)
 						setVerificacaoLogin('true')
                         return Alert.alert(
                             //title
