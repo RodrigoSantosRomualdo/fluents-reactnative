@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react';
 import Tts from 'react-native-tts';
 import apiComparaText from '../../services/compareText';
 import apiTemas from '../../services/temas';
+import * as Progress from 'react-native-progress';
 import Home from '../Home'
 import {
 	SafeAreaView,
@@ -15,7 +16,8 @@ import {
 	ScrollView,
 	Button,
 	TouchableOpacity,
-	ActivityIndicator
+	ActivityIndicator,
+	BackHandler
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
@@ -44,8 +46,17 @@ const Speech = ( props ) => {
 	const [microphoneValue, setMicrophoneValue] = useState(false)
 	const [phoneValue, setPhoneValue] = useState(false)
 	const [valueText, setValueText] = useState()
+	const [resultSucesso, setResultSucesso] = useState(false);
+	const [resultInsucesso, setResultInsucesso] = useState(false);
+	const [mostraAudioMic, setMostraAudioMic] = useState(false);
+	const [progressoBarra, setProgressoBarra] = useState(0.0)
+	const [loadingApi, setLoadingApi] = useState(false)
+
+	const [audioAtivado, setAudioAtivado] = useState(false);
+	const [micAtivado, setMicAtivado] = useState(false);
 	
 	async function resultTemas() {
+		setLoadingApi(true)
 		const result = await apiTemas.post('atividade/buscar-atividade', {
 			tema_aprendizado: props?.route.params?.aprender,
 			nivel_disponivel: props?.route.params?.nivel_disponivel,
@@ -54,7 +65,9 @@ const Speech = ( props ) => {
 		await setNivelDisponivel(props?.route.params?.nivel_number)
 		await setNivelDisponivelString(props?.route.params?.nivel_disponivel)
 		console.log('data  ------------>>>>>>>>>>>>>...',result.data)
+		setLoadingApi(false)
 		return setExercicio(result.data);
+		
 		//console.log('exercicio --------------->>>>>>>>>>>>>> ', exercicio)
 
 	}
@@ -64,6 +77,12 @@ const Speech = ( props ) => {
 		resultTemas()
 	}, [])
 
+	// Reset no BACK BUTTON DO CELULAR
+	BackHandler.addEventListener('hardwareBackPress', () => {
+		navigation.reset({index: 0, routes: [{name: 'O que vamos aprender hoje?', params: { renderizar: true}  }],  }) 
+		return true; ;
+		
+	})
 
 	/*
 	useEffect(() => {
@@ -138,6 +157,7 @@ const Speech = ( props ) => {
 		//Invoked when .start() is called without error
 		//console.log('onSpeechStart: ', e);
 		console.log('onSpeechStart')
+		setProgressoBarra(0.3)
 		setStarted('√');
 	};
 
@@ -147,6 +167,7 @@ const Speech = ( props ) => {
 		//console.log('FINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUI')
 		//console.log('VALUE results: ', results)
 		console.log('onSpeechEnd')
+		setProgressoBarra(0.9)
 		setEnd('√');
 	};
 
@@ -185,6 +206,7 @@ const Speech = ( props ) => {
 		//console.log('onSpeechPartialResults: ', e);
 		setPartialResults(e.value);
 		console.log('onSpeechPartialResults' , )
+		setProgressoBarra(0.7)
 		//compareText()
 	};
 
@@ -197,6 +219,7 @@ const Speech = ( props ) => {
 
 	const startRecognizing = async (textIngles) => {
 		textInglesComparacao = textIngles;
+		setProgressoBarra(0.1)
 		//Starts listening for speech for a specific locale
 		//await setValueText(textIngles)
 		//console.log('textIngles: ', textIngles)
@@ -319,14 +342,34 @@ const Speech = ( props ) => {
 			textIngles: textInglesComparacao, 
 			speechTextUser : textUserString
 		})
+		setProgressoBarra(1)
 		setResultApiString(response.data)
 		console.log(response.data)
 		console.log('USESTATE: ', resultApiString) 
 
 		setMicrophoneValue(false)
+
+		console.log('ENTROU NO FORAAAAAAAAAAA' , response.data.error)
+		
+		if (response.data.error  === false  && response.data.message === "Processado com sucesso" && response.data.result === "Sucesso") {
+			setMostraAudioMic(true)  // desabilita o microphone e Fone
+			
+			console.log('ENTROU NO IF IFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+			//resultSucesso, setResultSucesso
+			return setResultSucesso(true)
+		} else if (response.data.error  === false  && response.data.message === "Processado com sucesso" && response.data.result === "Erro Similaridade")  {
+			setMostraAudioMic(true)  // desabilita o microphone e Fone
+			console.log('ENTROU NO ELSE')
+			return setResultInsucesso(true)
+			// resultInsucesso, setResultInsucesso
+		}
+		//  && response.data.message === "processado com sucesso" && response.data.result === "Sucesso"
 	}
 
 	const funcaoNext = () => {
+		setResultSucesso(false)
+		setMostraAudioMic(false)
+		setLoadingApi(true)
 		console.log("EXECUTOU A FUNCAO NEXT")
 		const soma = pages + 1;
 		setPages(soma)
@@ -334,18 +377,25 @@ const Speech = ( props ) => {
 	}
 
 	const funcaoPreveios = () => {
+		setResultSucesso(false)
+		setMostraAudioMic(false)
 		console.log("EXECUTOU A FUNCAO funcaoPreveios ===================>>>>>>>>>>>>>>>>>>>.    pages    ", pages)
 		if (pages === 0) {
 			return Alert.alert(
 				"Atenção", "Você está no exericio 1", [
 					{ text: "Ok", onPress: () => console.log('Tentar novamente') } ] )
 		} else {
+			setLoadingApi(true)
 			const subtracao = pages - 1;
 			setPages(subtracao)
 			console.log("BUSCANDO PAGES ", pages)
 			buscarExercicio(subtracao)
 		}
 	}
+
+
+		
+
 
 	const buscarExercicio = async (ValorPages) => {
 		const result = await apiTemas.post('atividade/buscar-atividade', {
@@ -391,6 +441,7 @@ const Speech = ( props ) => {
 				resultSomaNivel = '';
 				stringResultSomaNivel = '';
 				await setExercicio(result.data)  */
+				setLoadingApi(false)
 				return Alert.alert(
 					"Parabéns", `Você finalizou o tema ${props?.route.params?.aprender}. Vamos selecionar um novo tema para aprender!`, 
 [{ text: "Ok", onPress: () => navigation.reset({index: 0, routes: [{name: 'O que vamos aprender hoje?', params: { renderizar: true}  }],  }) 
@@ -398,22 +449,45 @@ const Speech = ( props ) => {
 
 					// [{ text: "Ok", onPress: () => navigation.navigate('O que vamos aprender hoje?', { renderizar: true} ) } ] )
 			} else {
-				setExercicio(result.data) 
+				Alert.alert(
+					"Parabéns", `Você agora passou para o ${stringResultSomaNivel}.`, 
+[{ text: "Ok", onPress: () => console.log('FINALIZOU O NIVEL'),  }] )
+				setExercicio(result.data)
+				setLoadingApi(false)
 			}
 			
 
 		} else {
 			setExercicio(result.data)
+			setLoadingApi(false)
 		}
 		
 	}
 	// microphoneValue, setMicrophoneValue
+
+	const resetTelaTreino = () => {
+		setProgressoBarra(0.0)
+		setResultSucesso(false);
+		setResultInsucesso(false);
+		setMostraAudioMic(false);
+	}
+
+	const audioAtivando = () => {
+		//const [audioAtivado, 
+		setAudioAtivado(false);
+		//const [micAtivado, 
+		//setMicAtivado(true);
+		playSound(`https://stream-audio-react-native.herokuapp.com/tracks/${exercicio?.id_audio}`)
+	}
 	const AprendizadoSelecionado = () => {
 
 		return (
 			<View style={{backgroundColor: '#6877e8' , height: '100%'}}>
-            <ScrollView style={{margin: '1%'}}>
+			
+			
 
+            <ScrollView style={{margin: '1%'}}>
+			
 			<View style={{alignItems: 'center', marginTop: '10%' }}>
 				<TouchableOpacity style={{marginTop: '5%', backgroundColor: '#E5E5E5', padding: 10, borderRadius: 5, width: '90%'}}>
 					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '500', color: "#0b0e26", fontSize: 20}}>{exercicio?.nome_exercicio_ingles}</Text>
@@ -426,15 +500,14 @@ const Speech = ( props ) => {
 				</TouchableOpacity>
 
 			</View>
-
+			
+			{!mostraAudioMic  && 
 			<View style={{flexDirection: 'row', justifyContent: 'space-around', marginTop: '35%'}}>
 					
 					{phoneValue === false ? 
 					<View style={styles.backPhone}>
-						<TouchableOpacity onPress={()=> {return playSound(`https://stream-audio-react-native.herokuapp.com/tracks/${exercicio?.id_audio}`)}}>
-						
+						<TouchableOpacity onPress={()=> audioAtivando() }>
 							<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
-							
 						</TouchableOpacity>
 						
 						</View>  :  <View style={styles.backPhone}>
@@ -443,25 +516,98 @@ const Speech = ( props ) => {
 
 						<TouchableOpacity onPress={()=> {return playSound(`https://stream-audio-react-native.herokuapp.com/tracks/${exercicio?.id_audio}`)}}>
 
-							<FontAwesome5 name="headphones-alt" size={75} color="#E5E5E5" />
+							<FontAwesome5 name="headphones-alt" size={75} color="#00ff00" />
 							
 						</TouchableOpacity>
 
 						</View> }
 
 						
-
-
-
 					<View style={[microphoneValue ? styles.backMicrofoneTrue : styles.backMicrofoneFalse]}>
-						{microphoneValue && <ActivityIndicator style={{position: 'absolute'}} size="large" color="#00ff00" />}
+						{microphoneValue ? (
+							
 					<TouchableOpacity onPress={() => startRecognizing(exercicio?.nome_exercicio_ingles)}>
-						<FontAwesome5 name="microphone-alt" size={60} color="#E5E5E5" />
+						<FontAwesome5 name="microphone-alt" size={60} color="#00ff00" style={{width: 100}} />
+						<Text style={{fontStyle: 'italic', color:"#FFF", marginRight: '30%', fontSize: 10}}>Listening</Text>
+						<Progress.Bar color={'#00ff00'} progress={progressoBarra} width={45} />
+						
+					</TouchableOpacity> ) : (
+					<TouchableOpacity onPress={() => startRecognizing(exercicio?.nome_exercicio_ingles)}>
+						{!micAtivado && 
+						<View>
+							<FontAwesome5 name="microphone-alt" size={60} color="#E5E5E5" />
+							</View>
+						}
+						
 					</TouchableOpacity>
+					)}
+						
 					</View>
+
 			</View>
+			}
+			{resultSucesso &&  // setMostraAudioMic
+				<View style={{marginTop: '25%', width: '98%', marginLeft: '1%', marginRight: '1%', alignItems: 'center'}}>
+				<TouchableOpacity onPress={()=> {return playSound(`https://stream-audio-react-native.herokuapp.com/tracks/${exercicio?.id_audio}`)}}
+				style={{backgroundColor: '#4d9e4d', borderRadius: 20, justifyContent: 'center', width: '100%'}}>
+				<Text style={{color: '#FFF', fontWeight: '700', fontSize: 40, width:'95%',
+				paddingBottom: 30,paddingTop: 30, marginLeft: '25%', marginRight: '25%' }}>Correto <FontAwesome5 name="headphones-alt" size={25} color="#E5E5E5" /></Text>
+							
+				</TouchableOpacity>
+
+				<TouchableOpacity onPress={() => resetTelaTreino()}
+				style={{ alignItems: 'center' ,backgroundColor: '#E5E5E5', borderRadius: 20, 
+				justifyContent: 'center', alignItems: 'center', width: '80%', marginTop: '10%'}}>
+							<Text style={{color: '#000', fontWeight: '700', fontSize: 20}}>Treinar Novamente</Text>
+				</TouchableOpacity>
+				</View>
+			}
+
+			{resultInsucesso &&  
+				<View style={{marginTop: '25%', width: '98%', marginLeft: '1%', marginRight: '1%', alignItems: 'center'}}>
+				<TouchableOpacity onPress={()=> {return playSound(`https://stream-audio-react-native.herokuapp.com/tracks/${exercicio?.id_audio}`)}}
+				style={{backgroundColor: 'red', borderRadius: 20, justifyContent: 'center', width: '100%'}}>
+				<Text style={{color: '#FFF', fontWeight: '700', fontSize: 40, width:'95%',
+				paddingBottom: 30,paddingTop: 30, marginLeft: '25%', marginRight: '25%' }}>Incorreto <FontAwesome5 name="headphones-alt" size={25} color="#E5E5E5" /></Text>
+							
+				</TouchableOpacity>
+
+				<TouchableOpacity onPress={() => resetTelaTreino()}
+				style={{ alignItems: 'center' ,backgroundColor: 'red', borderRadius: 20, 
+				justifyContent: 'center', alignItems: 'center', width: '80%', marginTop: '10%'}}>
+							<Text style={{color: '#000', fontWeight: '700', fontSize: 20}}>Tentar Novamente</Text>
+				</TouchableOpacity>
+				</View>
+				
+			}
+			
+			
 
 			{ /* 
+			backup css: 
+
+				<View style={{marginTop: '25%', width: '98%', marginLeft: '1%', marginRight: '1%'}}>
+				<TouchableOpacity onPress={()=> {return playSound(`https://stream-audio-react-native.herokuapp.com/tracks/${exercicio?.id_audio}`)}}
+				style={{flexDirection: 'row', justifyContent: 'center' ,backgroundColor: 'red', borderRadius: 20, justifyContent: 'center', alignItems: 'center'}}>
+							<Text style={{color: '#FFF', fontWeight: '700', fontSize: 40,
+							paddingBottom: 30, paddingLeft: 30, paddingTop: 30, paddingRight: 10}}>Incorreto</Text>
+							<FontAwesome5 name="headphones-alt" size={25} color="#E5E5E5" />
+				</TouchableOpacity>
+
+				
+				</View>
+
+				<View style={{marginTop: '30%', width: '98%', marginLeft: '1%', marginRight: '1%'}}>
+			<TouchableOpacity onPress={()=> {return playSound(`https://stream-audio-react-native.herokuapp.com/tracks/${exercicio?.id_audio}`)}}
+			style={{flexDirection: 'row', justifyContent: 'center' ,backgroundColor: '#4d9e4d', borderRadius: 20, justifyContent: 'center', alignItems: 'center'}}>
+						<Text style={{color: '#FFF', fontWeight: '700', fontSize: 40,
+						paddingBottom: 30, paddingLeft: 30, paddingTop: 30, paddingRight: 10}}>Correto</Text>
+						<FontAwesome5 name="headphones-alt" size={25} color="#E5E5E5" />
+					</TouchableOpacity>
+			</View>
+
+
+
 				phoneValue, setPhoneValue
 				
 			<TouchableOpacity onPress={startRecognizing}>
@@ -618,13 +764,23 @@ const Speech = ( props ) => {
 		)
 	}
 
+	
+
 	return (
+
+		<View>
+		{loadingApi &&
+		<View style={{backgroundColor: "#6877e8", height: '100%', width: '100%',}}>
+			 <ActivityIndicator color="#FFF"  size="large" style={{marginTop: '45%'}}  />
+
+		</View> }
 		<SafeAreaView>
+		
 			{!props.route.params?.aprender ?  <NaoSelecionouAprendizado/>  : <AprendizadoSelecionado/>}
 			
 			
 		</SafeAreaView>
-		
+		</View>
 	);
 };
 
@@ -681,7 +837,7 @@ const styles = StyleSheet.create({
 		color: '#B0171F',
 	},
 	backMicrofoneTrue : {
-		backgroundColor: '#4cba2f', 
+		//backgroundColor: '#4cba2f', 
 		width: '20%', 
 		borderRadius: 50, 
 		alignItems: 'center'
