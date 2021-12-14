@@ -1,9 +1,10 @@
 import React, {useEffect, useState  } from 'react';
-import { View, Text, ScrollView, FlatList, TouchableOpacity, Modal, Pressable, Button, TextInput, StyleSheet  } from 'react-native';
+import { View, Text, Alert, ScrollView, FlatList, TouchableOpacity, Modal, Pressable, Button, TextInput, StyleSheet  } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import { homeStyle } from './homeStyle';
 import apiTemas from './../../services/temas';
 import { useNavigation } from '@react-navigation/native';
+import storegeUser from '../../services/storegeUser';
 
 export default function Home( props ) {
     console.log('PROPS navigation ------------------->>>>>>>>>>>>>>>>>>>>>>. ', props?.route?.params)
@@ -105,6 +106,30 @@ export default function Home( props ) {
 
       */
 
+      async function  verificacaoPremium(nomeTema) {
+        const resultbuscarPremiumUser = await storegeUser.buscarPremiumUser('premium');
+        console.log('resultbuscarPremiumUser ', resultbuscarPremiumUser)
+        if (nomeTema === "First meeting") {
+          modalTrue(nomeTema)
+        } else if (resultbuscarPremiumUser  === true || resultbuscarPremiumUser  === 'true') {
+          modalTrue(nomeTema)
+        } else {
+          return Alert.alert(
+            "Mensagem",
+            `Você ainda não é Premium! No momento só está disponível o tema First meeting. Aproveite agora a super promoção por apenas 9,99 R$`,
+            [
+              {
+                text: "Ok",
+                onPress: () =>  navigation.navigate('Pagamento')
+              }
+            ]
+          )
+        }
+
+
+      }
+        
+
     return(
         <View style={homeStyle.container}>
    
@@ -127,7 +152,7 @@ export default function Home( props ) {
                  renderItem={({ item }) => (
                    
                     <TouchableOpacity style={{marginTop: '8%' ,borderRadius: 40,width: '80%', marginLeft: '10%', marginRight: '10%', height: 50, 
-                    backgroundColor: '#E5E5E5', justifyContent: 'center', alignItems: 'center',}} onPress={() => modalTrue(item.nome) }>
+                    backgroundColor: '#E5E5E5', justifyContent: 'center', alignItems: 'center',}} onPress={() => verificacaoPremium(item.nome) }>
                         <Text style={{fontSize: 20, fontWeight: '700', color: "#0b0e26"}}>{item.nome}</Text>
                     </TouchableOpacity>
                  )}                
