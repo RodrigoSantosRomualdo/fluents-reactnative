@@ -7,6 +7,7 @@ const Stack = createStackNavigator();
 import Login from './pages/Login/index';
 import Home from './pages/Home';
 import Speech from './pages/Speech';
+import CheckoutMP from './pages/CheckoutMP';
 
 const Drawer = createDrawerNavigator();
 
@@ -46,15 +47,29 @@ const RoutesOptions = () => {
                 headerStyle: {
                   backgroundColor: '#6877e8',
                 },
-                headerTintColor: '#fff',
+                headerTintColor: '#FFFFFF',
                 headerTitleStyle: {
                 fontWeight: 'bold',
             },
         }}
-            
-                    
-            />
+         />
+
+        <Drawer.Screen name="Pagamento" component={CheckoutMP}
+            options={{
+                title: 'Checkout Premium',
+                headerStyle: {
+                  backgroundColor: '#6877e8',
+                },
+                headerTintColor: '#FFFFFF',
+                headerTitleStyle: {
+                fontWeight: 'bold',
+            },
+        }}
+         />
          
+
+
+
 
         </Drawer.Navigator>
         

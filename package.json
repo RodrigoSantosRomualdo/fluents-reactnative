@@ -19,6 +19,7 @@
     "axios": "^0.24.0",
     "formik": "^2.2.9",
     "link": "^0.1.5",
+    "moment": "^2.29.1",
     "react": "16.13.1",
     "react-native": "^0.63.4",
     "react-native-elements": "^3.4.2",
@@ -34,7 +35,8 @@
     "react-native-speech": "^0.1.2",
     "react-native-tts": "^4.1.0",
     "react-native-vector-icons": "^9.0.0",
-    "react-native-voice": "^0.3.0"
+    "react-native-voice": "^0.3.0",
+    "react-native-webview": "^11.15.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

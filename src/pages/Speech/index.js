@@ -57,6 +57,7 @@ const Speech = ( props ) => {
 	
 	async function resultTemas() {
 		setLoadingApi(true)
+		
 		const result = await apiTemas.post('atividade/buscar-atividade', {
 			tema_aprendizado: props?.route.params?.aprender,
 			nivel_disponivel: props?.route.params?.nivel_disponivel,
@@ -65,9 +66,10 @@ const Speech = ( props ) => {
 		await setNivelDisponivel(props?.route.params?.nivel_number)
 		await setNivelDisponivelString(props?.route.params?.nivel_disponivel)
 		console.log('data  ------------>>>>>>>>>>>>>...',result.data)
-		setLoadingApi(false)
-		return setExercicio(result.data);
 		
+			setLoadingApi(false)
+		return setExercicio(result.data);
+		//setLoadingApi(false)
 		//console.log('exercicio --------------->>>>>>>>>>>>>> ', exercicio)
 
 	}
@@ -489,14 +491,14 @@ const Speech = ( props ) => {
             <ScrollView style={{margin: '1%'}}>
 			
 			<View style={{alignItems: 'center', marginTop: '10%' }}>
-				<TouchableOpacity style={{marginTop: '5%', backgroundColor: '#E5E5E5', padding: 10, borderRadius: 5, width: '90%'}}>
-					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '500', color: "#0b0e26", fontSize: 20}}>{exercicio?.nome_exercicio_ingles}</Text>
-					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '500', color: "#0b0e26", fontSize: 12}}>{exercicio?.nome_exercicio_portugues}</Text>
+				<TouchableOpacity style={{marginTop: '5%', backgroundColor: '#FFFFFF', padding: 10, borderRadius: 5, width: '90%'}}>
+					<Text style={{backgroundColor: '#FFFFFF', fontWeight: '500', color: "#0b0e26", fontSize: 20}}>{exercicio?.nome_exercicio_ingles}</Text>
+					<Text style={{backgroundColor: '#FFFFFF', fontWeight: '500', color: "#0b0e26", fontSize: 12}}>{exercicio?.nome_exercicio_portugues}</Text>
 				</TouchableOpacity>
 
 
-				<TouchableOpacity style={{marginTop: '5%', backgroundColor: '#E5E5E5', padding: 7, borderRadius: 5, width: '88%',}}>
-					<Text style={{backgroundColor: '#E5E5E5', fontWeight: '300', color: "#0b0e26", fontSize: 18}}>{exercicio?.nome_exercicio_fala}</Text>
+				<TouchableOpacity style={{marginTop: '5%', backgroundColor: '#FFFFFF', padding: 7, borderRadius: 5, width: '88%',}}>
+					<Text style={{backgroundColor: '#FFFFFF', fontWeight: '300', color: "#0b0e26", fontSize: 18}}>{exercicio?.nome_exercicio_fala}</Text>
 				</TouchableOpacity>
 
 			</View>
@@ -507,7 +509,7 @@ const Speech = ( props ) => {
 					{phoneValue === false ? 
 					<View style={styles.backPhone}>
 						<TouchableOpacity onPress={()=> audioAtivando() }>
-							<FontAwesome5 name="headphones-alt" size={60} color="#E5E5E5" />
+							<FontAwesome5 name="headphones-alt" size={60} color="#FFFFFF" />
 						</TouchableOpacity>
 						
 						</View>  :  <View style={styles.backPhone}>
@@ -535,7 +537,7 @@ const Speech = ( props ) => {
 					<TouchableOpacity onPress={() => startRecognizing(exercicio?.nome_exercicio_ingles)}>
 						{!micAtivado && 
 						<View>
-							<FontAwesome5 name="microphone-alt" size={60} color="#E5E5E5" />
+							<FontAwesome5 name="microphone-alt" size={60} color="#FFFFFF" />
 							</View>
 						}
 						
@@ -626,10 +628,10 @@ const Speech = ( props ) => {
 
 				
             </ScrollView>
-			<View style={{flexDirection: 'row', justifyContent: 'space-between', marginRight: '1%', marginLeft: '1%', marginBottom: '1%'}}>
+			<View style={{flexDirection: 'row', justifyContent: 'space-between', marginRight: '5%', marginLeft: '5%', marginBottom: '3%'}}>
 				{pages !== 1 ? (
 					<TouchableOpacity onPress={funcaoPreveios} style={{backgroundColor: '#E5E5E5', padding: 10, borderRadius: 5}}>
-					<Text style={{fontSize: 20, fontWeight: '700', color: "#0b0e26"}}>Previous</Text>
+					<Text style={{fontSize: 20, fontWeight: '700', color: "#000000"}}>Previous</Text>
 					</TouchableOpacity> ) : (
 						<TouchableOpacity>
 						
@@ -638,7 +640,7 @@ const Speech = ( props ) => {
 				}
 					
 					<TouchableOpacity onPress={funcaoNext} style={{backgroundColor: '#E5E5E5', padding: 10, borderRadius: 5, width: '30%', alignItems: 'center'}}>
-						<Text style={{fontSize: 20, fontWeight: '700', color: "#0b0e26"}}>Next</Text>
+						<Text style={{fontSize: 20, fontWeight: '700', color: "#000000"}}>Next</Text>
 					</TouchableOpacity>
 				</View>
         </View>
@@ -655,7 +657,7 @@ const Speech = ( props ) => {
 
 				<View>
 				<TouchableOpacity style={{marginTop: '8%' ,borderRadius: 40,width: '80%', marginLeft: '10%', marginRight: '10%', height: 50, 
-                backgroundColor: '#E5E5E5', justifyContent: 'center', alignItems: 'center',}} onPress={() => navigation.navigate('O que vamos aprender hoje?')}>
+                backgroundColor: '#E5E5E5', justifyContent: 'center', alignItems: 'center',}} onPress={() => navigation.reset({index: 0, routes: [{name: 'O que vamos aprender hoje?', params: { renderizar: true}  }],  }) }>
                     <Text style={{fontSize: 20, fontWeight: '700', color: "#0b0e26"}}>Clique aqui para selecionar</Text>
             </TouchableOpacity>
 				</View>

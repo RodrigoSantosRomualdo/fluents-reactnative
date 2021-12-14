@@ -1,3 +1,51 @@
+/*
+
+ ----------------   NAÔ USADO MAIS     ---------------------- 
+
+
+ ----------------   NAÔ USADO MAIS     ---------------------- 
+
+
+
+
+
+ ----------------   NAÔ USADO MAIS     ---------------------- 
+
+
+
+ ----------------   NAÔ USADO MAIS     ---------------------- 
+
+
+
+
+
+
+
+
+
+ ----------------   NAÔ USADO MAIS     ----------------------
+ 
+ 
+
+  ----------------   NAÔ USADO MAIS     ---------------------- 
+
+
+   ----------------   NAÔ USADO MAIS     ---------------------- 
+
+
+    ----------------   NAÔ USADO MAIS     ---------------------- 
+
+*/
+
+
+
+
+
+
+
+
+
+
 import React, { useState,useEffect} from 'react';
 import { Formik, useFormik } from 'formik';
 import { Provider as ParerProvider, Card, TextInput, Button} from 'react-native-paper';
@@ -153,9 +201,7 @@ export default function Login({navigation}) {
                 <ScrollView>
                     <HeaderComponent title="Register"/>
                     <View style={registerStyle.container}>
-                        <TextInput label="Name"
-                         />
-                        <TextInput label="Email" keyboardType="email-address"/>
+                       
                         <TextInput label="Password" secureTextEntry={true}  right={<TextInput.Icon name="eye-off-outline" color={registerStyle.icon.color}/>}/>
                         <TextInput label="Confirm password" secureTextEntry={true} right={<TextInput.Icon name="eye-off-outline" color={registerStyle.icon.color}/>} />
                         
@@ -236,9 +282,6 @@ export default function Login({navigation}) {
                                     {state && <Button style={loginStyl.cardText}>{state}</Button>} 
                                     
                                     <Button style={loginStyl.cardButton} onPress={() => irRegister()}>Register</Button>
-                                 
-                                   
-                                
 
                         </Card.Content>
                 </Card>

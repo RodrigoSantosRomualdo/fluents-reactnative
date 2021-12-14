@@ -29,19 +29,42 @@ export default function App({navigation}) {
 		const result = storegeUser.buscarUserLogin('store');
 		console.log('result STORAGE: ', result)
 	} */
+    {/* INICIO LOGIN */}
+    {/* INICIO REGISTRAR USUARIO */}
+    {/* INICIO RECUPERAR SENHA*/}
+
 	useEffect(() => {
 		(async () => {
 			console.log('useEffect ------->>>>>>>>>>.....')
 			const regex_validation = /^([a-z]){1,}([a-z0-9._-]){1,}([@]){1}([a-z]){2,}([.]){1}([a-z]){2,}([.]?){1}([a-z]?){2,}$/i;
 			const validacaoConta = /([@]){1}/i;
 			//storegeUser.armazenarUserLogin('store', 'rodrigo@gmail.com')
-			//storegeUser.removeUserLogin('store')
+			//await storegeUser.removeUserLogin('store')
+            //await storegeUser.removePremiumUser('premium')
+            //const resubuscarPremiumUserltDEPOIS = await storegeUser.buscarPremiumUser('premium');
+            //console.log('resubuscarPremiumUserltDEPOIS ', resubuscarPremiumUserltDEPOIS)
 			const result = await storegeUser.buscarUserLogin('store');
 			console.log('result STORAGE: ', result)
 			console.log("É email válido? Resposta: " + validacaoConta.test(result))
 			if (validacaoConta.test(result) === true) {
 				console.log('ENTROU NO IF', result)
-				
+				const dataFindUser = await apiUsers.post('finduser', {
+                    //email: 'rodrigordromualdo@gmail.com'
+                    email: result
+                })
+
+                console.log('dataFindUser.data.data[0]?.premium ---> ', dataFindUser.data.data[0])
+
+                  const resubuscarPremiumUserlt = await storegeUser.buscarPremiumUser('premium');
+                  console.log('resubuscarPremiumUserlt ', resubuscarPremiumUserlt)
+                if (dataFindUser.data.data[0]?.premium === undefined || dataFindUser.data.data[0]?.premium === false) {
+                    console.log('É UNDEFINED deve ser false LOCALSTORAGE -->')
+                    console.log('IF')
+                    await storegeUser.armazenarPremiumUser('premium', 'false')
+                } else {
+                    console.log('ELSE')
+                    await storegeUser.armazenarPremiumUser('premium', 'true')
+                }
 				await setUser(result)
 				//if (user === undefined) { setUser() }
 				//console.log('user', user)
@@ -64,7 +87,7 @@ export default function App({navigation}) {
 	} 
 
 	const irRegister = () => {
-        console.log('REGISTER ', )
+        console.log('REGISTER FUNCAO ', )
         setModalVisibleRegister(true)
         
     }
@@ -92,13 +115,22 @@ export default function App({navigation}) {
             initialValues: ({email: "" , password: "", nomeRegister: "", emailRegister: "", passwordRegister: "", passwordRegisterConfirme: "", passwordForgot: "" }),
             onSubmit: async values => {
 
+
+                console.log('email: ""', values.email)
+                console.log('password: ""', values.password)
+                console.log()
+                console.log()
+                console.log('passwordRegister ', values.passwordRegister)
+                console.log('passwordRegisterConfirme ', values.passwordRegisterConfirme)
+
+
                 try {
-					console.log('values -------------->>>>>>>. ',values.email.length)
-					console.log('values -------------->>>>>>>. ',values.emailRegister.length)
+				//	console.log('values -------------->>>>>>>. ',values.email.length)
+				//	console.log('values -------------->>>>>>>. ',values.emailRegister.length)
 
 					if (values.passwordForgot.length > 0) {
 						const resultForgot = await apiUsers.post('recupera-password',{
-							email: "rodrigo.s.romualdo@gmail.com",
+							email: values.passwordForgot,
 						})
 						if (resultForgot.data.error === false) {
 							console.log('resultForgot->>>>>>>>>>.', resultForgot.data)
@@ -128,15 +160,16 @@ export default function App({navigation}) {
 					} 
 
 					else if (values.emailRegister.length > 0) { 
-						console.log('>>>>>>>>>>>>>>>>>. emailRegister ', )
+						console.log('>>>>>>>>>>>>>>>>>. emailRegister ',values.nomeRegister,   values.emailRegister,  values.passwordRegister,  values.passwordRegisterConfirme )
+                       
 					
-						const resultCreate = await apiUsers.post('create',{
-							nome: "Rodrigo Romualdo",
-							email: "rodrigo.s.romualdo@gmail.com",
-							password: "12345678",
-							passwordRegister: "12345678"
+                        const resultCreate = await apiUsers.post('create',{
+							nome: values.nomeRegister,
+							email: values.emailRegister,
+							password: values.passwordRegister,
+							passwordRegister: values.passwordRegisterConfirme
 						})
-						console.log(resultCreate.data) 
+						console.log(resultCreate.data)   
 						if (resultCreate.data.status === "FAILED") {
 							console.log('resultCreate.data.FAILED === FAILED')
 							await setCreateFailed("Error e-mail já cadastrado")
@@ -150,13 +183,24 @@ export default function App({navigation}) {
 				
 
 					else if (values.email.length > 0) {
+                        console.log('CAIU AQUI ')
+                        
+                        
+                      /*  const findUSer = await apiUsers.post('finduser', {
+                            email: 'rodrigordromualdo@gmail.com'
+                        }) 
+                        consolr.log('findUSer ', findUSer)      */
                     const resultLogin = await apiUsers.post('login',{
-                        email: "rodrigo.s.romualdo@gmail.com",
-                        password: "12345678"
-                    })
+                       // email: 'rodrigordromualdo@gmail.com',
+                       // password: '12345678'
+                        email: values.email,
+                        password: values.password
+                    })  
+                    
                     console.log('result API: ',resultLogin.data)
                     console.log('result API 2: ',resultLogin.data.email)
                     if (resultLogin.data.status === "FAILED") {
+                        
                         console.log("Invalid credentials")
                         return Alert.alert(
                             "Error",
@@ -167,30 +211,55 @@ export default function App({navigation}) {
                                     onPress: () => console.log('Tentar novamente')
                                 }
                             ]
-                        )
+                        )  
                     } else if (resultLogin.data.status === "SUCCESS" && resultLogin.data.email !== undefined) {
-                        console.log('CAIU NO ELSE IF EMAIL')
+                        const dataFindUser = await apiUsers.post('finduser', {
+                            //email: 'rodrigordromualdo@gmail.com'
+                            email: values.email
+                        })
 
-                    
+                        console.log('dataFindUser.data.data[0]?.premium ---> ', dataFindUser.data.data[0])
+
+                          const resubuscarPremiumUserlt = await storegeUser.buscarPremiumUser('premium');
+                          console.log('resubuscarPremiumUserlt ', resubuscarPremiumUserlt)
+                        if (dataFindUser.data.data[0]?.premium === undefined || dataFindUser.data.data[0]?.premium === false) {
+                            console.log('É UNDEFINED deve ser false LOCALSTORAGE -->')
+                            console.log('IF')
+                            await storegeUser.armazenarPremiumUser('premium', 'false')
+                        } else {
+                            console.log('ELSE')
+                            await storegeUser.armazenarPremiumUser('premium', 'true')
+                            
+                        }
+                        const resubuscarPremiumUserltDEPOIS = await storegeUser.buscarPremiumUser('premium');
+                          console.log('resubuscarPremiumUserltDEPOIS ', resubuscarPremiumUserltDEPOIS)
+                       // console.log('dataFindUser -> : ', dataFindUser.data.data[0].premium)
+                       // console.log('dataFindUser DT ->: ', dataFindUser.data.data[0].data_premium)
+
+                        console.log('CAIU NO ELSE IF EMAIL')  
                         storegeUser.armazenarUserLogin('store', resultLogin.data.email)
+
+
+
+
 						setVerificacaoLogin('true')
                         return Alert.alert(
                             //title
                             'Atenção',
                             //body
-                            `Login realizado com sucesso, clique no Ok para carregar o seu perfil!`,
+                            `Login realizado com sucesso, para iniciar clique no Ok!`,
                             [
                               {
                                 text: 'Ok', onPress: (() => carregarPerfilLogin()) ,
                               },
                             ],
-                        )
-                    }
+                        ) 
+                    }  
 				}
                     
                    // storegeUser.armazenarUserLogin('store', 'rodrigo@gmail.com')
                 } catch (error) {
-                    return Alert.alert(
+                  return Alert.alert(
                         "Error",
                         "Ocorreu um erro, tente novamente",
                         [
@@ -199,7 +268,7 @@ export default function App({navigation}) {
                                 onPress: () => console.log('Tentar novamente')
                             }
                         ]
-                    )
+                    ) 
                 }
                 console.log('... ', values)
             }
@@ -224,12 +293,11 @@ export default function App({navigation}) {
                     <HeaderComponent title="Register"/>
                     <View style={registerStyle.container}>
                         <TextInput label="Name"  value={formik.values.nomeRegister} onChangeText={formik.handleChange('nomeRegister')}  />
-                        <TextInput label="Email" keyboardType="email-address" value={formik.values.emailRegister} onChangeText={formik.handleChange('emailRegister')} />
-                        <TextInput label="Password" secureTextEntry={true}  right={<TextInput.Icon name="eye-off-outline"
-						value={formik.values.passwordRegister} onChangeText={formik.handleChange('passwordRegister')} color={registerStyle.icon.color}/>}/>
-                        <TextInput label="Confirm password" secureTextEntry={true} right={<TextInput.Icon name="eye-off-outline" 
-						value={formik.values.passwordRegisterConfirme} onChangeText={formik.handleChange('passwordRegisterConfirme')}color={registerStyle.icon.color}/>} />
+                        <TextInput label="E-mail" keyboardType="email-address" autoCapitalize='none' value={formik.values.emailRegister} onChangeText={formik.handleChange('emailRegister')} />
+
                         
+                        <TextInput label="Password" secureTextEntry={true}  value={formik.values.passwordRegister} onChangeText={formik.handleChange('passwordRegister')}  />
+                        <TextInput label="Confirm password" secureTextEntry={true}  value={formik.values.passwordRegisterConfirme} onChangeText={formik.handleChange('passwordRegisterConfirme')}  />
 
                         {!formik.isSubmitting && <Button mode="contained" style={registerStyle.button} onPress={formik.handleSubmit}>Register</Button> }
 						
@@ -241,6 +309,11 @@ export default function App({navigation}) {
 							{createFailed && <Text style={{color: 'red'}}>{createFailed}</Text>}
 						</View>
 						
+                        {/*
+                                                    <TextInput label="Password" secureTextEntry={false}  right={<TextInput.Icon name="eye-off-outline" value={formik.values.passwordRegister} onChangeText={formik.handleChange('passwordRegister')} color={registerStyle.icon.color}/>}/>
+                        <TextInput label="Confirm password" secureTextEntry={false} right={<TextInput.Icon name="eye-off-outline" 
+						value={formik.values.passwordRegisterConfirme} onChangeText={formik.handleChange('passwordRegisterConfirme')}color={registerStyle.icon.color}/>} />
+                        */}
 
 					
 						   
@@ -276,7 +349,7 @@ export default function App({navigation}) {
                 <ScrollView>
                     <HeaderComponent title="Forgot Password"/>
                     <View style={registerStyle.container}>
-                        <TextInput label="Email" keyboardType="email-address"  style={{marginTop: '1%'}}
+                        <TextInput label="Email" keyboardType="email-address" autoCapitalize='none' style={{marginTop: '1%'}}
 						value={formik.values.passwordForgot}
 						onChangeText={formik.handleChange('passwordForgot')} />
 
@@ -305,8 +378,9 @@ export default function App({navigation}) {
                 <Card>
                         <Card.Title title="Fluents" titleStyle={loginStyl.cardTitle} ></Card.Title>
                         <Card.Content>
-                                        <TextInput label="Email" 
+                                        <TextInput label="E-mail" 
                                         keyboardType="email-address"
+                                        autoCapitalize='none'
                                         value={formik.values.email}
                                         onChangeText={formik.handleChange('email')} />
                                         
