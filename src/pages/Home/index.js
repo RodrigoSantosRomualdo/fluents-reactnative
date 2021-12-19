@@ -5,10 +5,17 @@ import { homeStyle } from './homeStyle';
 import apiTemas from './../../services/temas';
 import { useNavigation } from '@react-navigation/native';
 import storegeUser from '../../services/storegeUser';
+import apiComparaText from '../../services/compareText';
+import * as Progress from 'react-native-progress';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Sound from 'react-native-sound';
+
+import Voice from 'react-native-voice';
+	let audio;
+	let textInglesComparacao;
 
 export default function Home( props ) {
-    console.log('PROPS navigation ------------------->>>>>>>>>>>>>>>>>>>>>>. ', props?.route?.params)
+    //console.log('PROPS navigation ------------------->>>>>>>>>>>>>>>>>>>>>>. ', props?.route?.params)
   // INICIO SPEECH
   const [nivelDisponivel, setNivelDisponivel] = useState();
 	const [nivelDisponivelString, setNivelDisponivelString] = useState();
@@ -66,11 +73,26 @@ export default function Home( props ) {
       })();
   }, [props?.route?.params?.renderizar])
 
+  useEffect(() => {
+    //Setting callbacks for the process status
+    Voice.onSpeechStart = onSpeechStart;
+    Voice.onSpeechEnd = onSpeechEnd;
+    Voice.onSpeechError = onSpeechError;
+    Voice.onSpeechResults = onSpeechResults;
+    Voice.onSpeechPartialResults = onSpeechPartialResults;
+    Voice.onSpeechVolumeChanged = onSpeechVolumeChanged;
 
+    return () => {
+      //destroy the process after switching the screen
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
 
     
 
     async function modalTrue(temaSelecionado) {
+        await setExercicio();
+        setPages(1)
         setModalVisibleNivel(true)
         console.log('temaEscolhido: ',temaSelecionado)
         setTemaEscolhido(temaSelecionado)
@@ -81,7 +103,18 @@ export default function Home( props ) {
     }
 
     async function sendSpeech(nivel_disponivel, ordem) {
-      console.log('nivel_disponivel ', nivel_disponivel)
+     console.log('nivel_disponivel ---------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', nivel_disponivel)
+      console.log('ordem ---------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', ordem)
+      await setNivelDisponivel('')
+		  await setNivelDisponivelString('')
+      await setExercicio('')
+      //console.log('ESTA VAZIO ===>>> ',exercicio)
+      if (exercicio !== undefined) {
+      //  console.log('PASSOU NO IFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+        await setExercicio('')
+      }
+     // console.log('nivel_disponivel ---------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', nivel_disponivel)
+     // console.log('nivel_disponivel ---------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', ordem)
       await setModalVisibleNivel(false)
       //await setTemas(false)
       await setTemasNivel(false)
@@ -93,10 +126,11 @@ export default function Home( props ) {
         nivel_disponivel: nivel_disponivel,
         ordem: pages
       })
-
-      console.log('data  ------------>>>>>>>>>>>>>...',result.data)
+      await setNivelDisponivel(ordem)
+		  await setNivelDisponivelString(nivel_disponivel)
+      //console.log('data  /////////////////////------------>>>>>>>>>>>>>...',result.data)
       await setExercicio(result.data);
-      console.log('----------------------->>> ', exercicio)
+     // console.log('----------------------->>> ', exercicio)
 
       //navigation.navigate('Exercise Page', {aprender: temaEscolhido, nivel_disponivel: nivel_disponivel, nivel_number: ordem })
     }
@@ -237,11 +271,218 @@ export default function Home( props ) {
         }
       }
 
+      const buscarExercicio = async (ValorPages) => {
+        const result = await apiTemas.post('atividade/buscar-atividade', {
+          tema_aprendizado: temaEscolhido,
+          nivel_disponivel: nivelDisponivelString,
+          ordem: ValorPages
+        })
+
+        console.log('----------///---- tema_aprendizado ', temaEscolhido  )
+        console.log('----------///---- nivel_disponivel ', nivelDisponivelString  )
+        console.log('----------///---- ordem ', ValorPages  )
+        
+        console.log('data  ------------>>>>>>>>>>>>>...',result.data)
+        if (result.data.message === "Nivel Finalizado!") {
+          let resultSomaNivel = await nivelDisponivel + 1;
+          let stringResultSomaNivel = await `Nível ${resultSomaNivel}`
+          //const resultNivelString = `Nível ${nivelDisponivel}`;
+          console.log('----------------------->>>> resultSomaNivel ', nivelDisponivel , ' STRING: ', stringResultSomaNivel )
+          await setNivelDisponivelString(stringResultSomaNivel)
+          await setNivelDisponivel(resultSomaNivel)
+          await setPages(1)
+    
+          console.log('O QUE ESTÀ SENDO ENVIADO PARA API DE NIVEL:::: ', stringResultSomaNivel)
+          const result = await apiTemas.post('atividade/buscar-atividade', {
+            tema_aprendizado: temaEscolhido,
+            nivel_disponivel: stringResultSomaNivel,
+            ordem: 1
+          })
+    
+          if (result.data.message === "Nivel Finalizado!") {
+        
+            setLoadingApi(false)
+            return Alert.alert(
+              "Parabéns", `Você finalizou o tema ${temaEscolhido}. Vamos selecionar um novo tema para aprender!`, 
+    [{ text: "Ok", onPress: setmodalVisibleSpeech(false)   } ] )  
+              // [{ text: "Ok", onPress: () => navigation.navigate('O que vamos aprender hoje?', { renderizar: true} ) } ] )
+          } else {
+            Alert.alert(
+              "Parabéns", `Você agora passou para o ${stringResultSomaNivel}.`, 
+    [{ text: "Ok", onPress: () => console.log('FINALIZOU O NIVEL'),  }] )
+            setExercicio(result.data)
+            setLoadingApi(false)
+          }
+          
+    
+        } else {
+          setExercicio(result.data)
+          setLoadingApi(false)
+        }
+        
+      }
 
 
+      function playSound(url) {
+        setPhoneValue(true)
+        console.log('ENTROU AQUI playSound')
+        audio = new Sound(url,'', (error, sound) => {
+          if (error) {
+            alert('error'+error+message)
+          }
+          audio.play(() => {
+            audio.release();
+            setPhoneValue(false)
+          })
+        }) 
+      }
 
+      const audioAtivando = () => {
+        //const [audioAtivado, 
+        setAudioAtivado(false);
+        //const [micAtivado, 
+        //setMicAtivado(true);
+        playSound(`https://stream-audio-react-native.herokuapp.com/tracks/${exercicio?.id_audio}`)
+      }
 
+      const resetTelaTreino = () => {
+        setProgressoBarra(0.0)
+        setResultSucesso(false);
+        setResultInsucesso(false);
+        setMostraAudioMic(false);
+      }
+      // FUNCOES MICROFONE
+     
 
+      const onSpeechStart = (e) => {
+        //Invoked when .start() is called without error
+        //console.log('onSpeechStart: ', e);
+        console.log('onSpeechStart')
+        setProgressoBarra(0.3)
+        setStarted('√');
+      };
+    
+      const onSpeechEnd = (e) => {
+        //Invoked when SpeechRecognizer stops recognition
+        //console.log('onSpeechEnd: ', e);
+        //console.log('FINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUIFINALIZOU AQUI')
+        //console.log('VALUE results: ', results)
+        console.log('onSpeechEnd')
+        setProgressoBarra(0.9)
+        setEnd('√');
+      };
+    
+      const onSpeechError = (e) => {
+        //Invoked when an error occurs.
+        //console.log('onSpeechError: ', e);
+        console.log('onSpeechError')
+        setMicrophoneValue(false)
+        setError(JSON.stringify(e.error));
+        return Alert.alert(
+          "Error",
+          "Não foi possível reconhecer sua voz. Vamos tentar novamente",
+          [
+            {
+              text: "Ok",
+              onPress: () => console.log('Tentar novamente')
+            }
+          ]
+        )
+      };
+    
+      const onSpeechResults = async (e) => {
+        //Invoked when SpeechRecognizer is finished recognizing
+        //console.log('onSpeechResults: ', e);
+        //console.log('onSpeechResults --------------->>>>>>> ')
+        //const textingles =  "days of the week";
+        setResults(e.value);
+        
+        console.log('CHAMOU API AGORA valueText ------->>>>>>...',  textInglesComparacao  )
+        //let text = await 'teste' 
+        compareText(textInglesComparacao, e.value)
+      };
+    
+      const onSpeechPartialResults = (e) => {
+        //Invoked when any results are computed
+        //console.log('onSpeechPartialResults: ', e);
+        setPartialResults(e.value);
+        console.log('onSpeechPartialResults' , )
+        setProgressoBarra(0.7)
+        //compareText()
+      };
+    
+      const onSpeechVolumeChanged = (e) => {
+        //Invoked when pitch that is recognized changed
+        //console.log('onSpeechVolumeChanged: ', e);
+        //console.log('onSpeechVolumeChanged')
+        setPitch(e.value);
+      };
+    
+      const startRecognizing = async (textIngles) => {
+        textInglesComparacao = textIngles;
+        setProgressoBarra(0.1)
+        //Starts listening for speech for a specific locale
+        //await setValueText(textIngles)
+        //console.log('textIngles: ', textIngles)
+        setMicrophoneValue(true)
+        
+        
+        try {
+          await Voice.start('en-US');
+          //await Voice.start('pt-BR');
+          await setValueText('ATUALIZADO AQUI')
+          setPitch('');
+          setError('');
+          setStarted('');
+          setResults([]);
+          setPartialResults([]);
+          setEnd('');
+          console.log('valueTextvalueTextvalueTextvalueText ', valueText)
+          console.log('startRecognizing')
+        } catch (e) {
+          //eslint-disable-next-line
+          console.error(e);
+        }
+      };
+    
+      const stopRecognizing = async () => {
+        //Stops listening for speech
+        try {
+          await Voice.stop();
+          console.log('stopRecognizing')
+        } catch (e) {
+          //eslint-disable-next-line
+          //console.error(e);
+        }
+      };
+    
+      const cancelRecognizing = async () => {
+        //Cancels the speech recognition
+        try {
+          await Voice.cancel();
+          console.log('cancelRecognizing')
+        } catch (e) {
+          //eslint-disable-next-line
+          //console.error(e);
+        }
+      };
+    
+      const destroyRecognizer = async () => {
+        //Destroys the current SpeechRecognizer instance
+        try {
+          await Voice.destroy();
+          setPitch('');
+          setError('');
+          setStarted('');
+          setResults([]);
+          setPartialResults([]);
+          setEnd('');
+          console.log('destroyRecognizer')
+        } catch (e) {
+          //eslint-disable-next-line
+          //console.error(e);
+        }
+      };
 
 
 
@@ -262,7 +503,7 @@ export default function Home( props ) {
               <ScrollView style={{margin: '1%'}}>
                 <View style={{alignItems: 'center', marginTop: '10%' }}>
                   <TouchableOpacity style={{marginTop: '5%', backgroundColor: '#FFFFFF', padding: 10, borderRadius: 5, width: '90%'}}>
-                    <Text style={{backgroundColor: '#FFFFFF', fontWeight: '500', color: "#0b0e26", fontSize: 20}}>{exercicio?.nome_exercicio_ingles}</Text>
+                    <Text style={{backgroundColor: '#FFFFFF', fontWeight: '500', color: "#0b0e26", fontSize: 20}}>MODAL{exercicio?.nome_exercicio_ingles}</Text>
                     <Text style={{backgroundColor: '#FFFFFF', fontWeight: '500', color: "#0b0e26", fontSize: 14}}>{exercicio?.nome_exercicio_portugues}</Text>
                   </TouchableOpacity>
 
