@@ -175,7 +175,7 @@ export default function CheckoutMP( props ) {
         <View style={{backgroundColor: '#6877e8', width: '100%', height: '100%'}}>
             <View style={{margin: '5%', marginTop: '10%'}}>
                 <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 17}}>
-                Obtenha o Premium de 1 ano por 9,99 R$
+                Obtenha o Premium e fique sem ver anúncio durante 1 ano por 9,99 R$
                 </Text>
                 <View style={{marginTop: '5%'}}>
                     <Text style={{marginBottom: '2%', fontSize: 18, color: '#FFF'}}>Todos os temas liberados</Text>

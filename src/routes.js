@@ -41,18 +41,7 @@ const RoutesOptions = () => {
         }}
         />
 
-            <Drawer.Screen name="Exercise Page" component={Speech}
-            options={{
-                title: 'Exercise Page',
-                headerStyle: {
-                  backgroundColor: '#6877e8',
-                },
-                headerTintColor: '#FFFFFF',
-                headerTitleStyle: {
-                fontWeight: 'bold',
-            },
-        }}
-         />
+            
 
         <Drawer.Screen name="Pagamento" component={CheckoutMP}
             options={{
@@ -82,3 +71,20 @@ export default function Routes() {
         <RoutesOptions/>
     )
 }
+
+/*
+<Drawer.Screen name="Exercise Page" component={Speech}
+            options={{
+                title: 'Exercise Page',
+                headerStyle: {
+                  backgroundColor: '#6877e8',
+                },
+                headerTintColor: '#FFFFFF',
+                headerTitleStyle: {
+                fontWeight: 'bold',
+            },
+        }}
+         />
+
+
+*/

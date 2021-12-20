@@ -103,6 +103,7 @@ export default function Home( props ) {
     }
 
     async function sendSpeech(nivel_disponivel, ordem) {
+      setLoadingApi(true)
      console.log('nivel_disponivel ---------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', nivel_disponivel)
       console.log('ordem ---------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', ordem)
       await setNivelDisponivel('')
@@ -119,7 +120,7 @@ export default function Home( props ) {
       //await setTemas(false)
       await setTemasNivel(false)
       await setmodalVisibleSpeech(true)
-      setLoadingApi(true)
+      
 
       const result = await apiTemas.post('atividade/buscar-atividade', {
         tema_aprendizado: temaEscolhido,
@@ -130,6 +131,7 @@ export default function Home( props ) {
 		  await setNivelDisponivelString(nivel_disponivel)
       //console.log('data  /////////////////////------------>>>>>>>>>>>>>...',result.data)
       await setExercicio(result.data);
+      setLoadingApi(false)
      // console.log('----------------------->>> ', exercicio)
 
       //navigation.navigate('Exercise Page', {aprender: temaEscolhido, nivel_disponivel: nivel_disponivel, nivel_number: ordem })
@@ -189,6 +191,9 @@ export default function Home( props ) {
       async function  verificacaoPremium(nomeTema) {
         const resultbuscarPremiumUser = await storegeUser.buscarPremiumUser('premium');
         console.log('resultbuscarPremiumUser ', resultbuscarPremiumUser)
+        modalTrue(nomeTema)
+
+        /* DESATIVADO O PREMIUM AGORA VAI SER APENAS ANUNCIO
         if (nomeTema === "First meeting") {
           modalTrue(nomeTema)
         } else if (resultbuscarPremiumUser  === true || resultbuscarPremiumUser  === 'true') {
@@ -204,7 +209,7 @@ export default function Home( props ) {
               }
             ]
           )
-        }
+        } */
       }
 
       const compareText = async (textInglesComparacao,textUserString) => {
@@ -485,7 +490,7 @@ export default function Home( props ) {
       };
 
 
-
+      
 
       if(modalVisibleSpeech) {
         return <Modal
@@ -496,10 +501,15 @@ export default function Home( props ) {
             //Alert.alert("AA Modal has been closed.");
             setmodalVisibleSpeech(!modalVisibleSpeech);
           }}
-        >
+        > 
           <View style={stylesCreate.centeredView}>
             <View style={stylesCreate.modalView}>
               <View style={{backgroundColor: '#6877e8' , height: '100%', width: '100%'}}>
+              {loadingApi &&
+              <View style={{backgroundColor: "#6877e8", height: '100%', width: '100%',}}>
+                <ActivityIndicator color="#FFF"  size="large" style={{marginTop: '45%'}}  />
+          
+              </View> }
               <ScrollView style={{margin: '1%'}}>
                 <View style={{alignItems: 'center', marginTop: '10%' }}>
                   <TouchableOpacity style={{marginTop: '5%', backgroundColor: '#FFFFFF', padding: 10, borderRadius: 5, width: '90%'}}>
