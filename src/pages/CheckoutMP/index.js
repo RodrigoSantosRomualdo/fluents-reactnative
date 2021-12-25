@@ -1,5 +1,5 @@
 import React, {useEffect, useState  } from 'react';
-import { View, Text, ScrollView, FlatList, TouchableOpacity, Modal, Pressable, Button, TextInput, StyleSheet  } from 'react-native';
+import { View, Text, Alert, ScrollView, FlatList, TouchableOpacity, Modal, Pressable, Button, TextInput, StyleSheet  } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import apiTemas from './../../services/temas';
 import { useNavigation } from '@react-navigation/native';
@@ -70,6 +70,20 @@ export default function CheckoutMP( props ) {
 
         })();
     }, []) 
+
+    const compraNaoLiberado = () => {
+
+        return Alert.alert(
+			"Mensagem",
+			"Não é possível comprar o pacote premium, apenas a partir do dia 01/03/2022",
+			[
+				{
+					text: "Ok",
+					onPress: () => console.log('Tentar novamente')
+				}
+			]
+		)
+    }
 
     // Mudança de estado de navegação
     async function  stateChange(state) {
@@ -170,13 +184,17 @@ export default function CheckoutMP( props ) {
         </View>
         )
     }
-
+    //  Obtenha Premium e fique sem ver anúncio durante 1 ano por 9,99 R$
     return (
         <View style={{backgroundColor: '#6877e8', width: '100%', height: '100%'}}>
             <View style={{margin: '5%', marginTop: '10%'}}>
                 <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 17}}>
-                Obtenha o Premium e fique sem ver anúncio durante 1 ano por 9,99 R$
+                Premium liberado até 01/03/2022.
                 </Text>
+                <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 17}}>
+                É possível acessar todos os temas sem limitação!
+                </Text>
+               
                 <View style={{marginTop: '5%'}}>
                     <Text style={{marginBottom: '2%', fontSize: 18, color: '#FFF'}}>Todos os temas liberados</Text>
                     <Text style={{marginBottom: '2%', fontSize: 18, color: '#FFF'}}>Ouvir audios ilimitados</Text>
@@ -186,7 +204,7 @@ export default function CheckoutMP( props ) {
 
             <View style={{marginTop: '45%', marginLeft: '5%', marginRight: '5%'}}>
 
-                <TouchableOpacity style={{backgroundColor: '#7a9e2b', padding: 15, borderRadius: 30 }} onPress={() => modalCheckout()}>
+                <TouchableOpacity style={{backgroundColor: '#7a9e2b', padding: 15, borderRadius: 30 }} onPress={() => compraNaoLiberado()}>
                  <Text style={{fontSize: 30, color: '#FFF', fontWeight: '800'}}>Checkout Premium</Text>
                 </TouchableOpacity>
             </View>

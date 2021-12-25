@@ -513,7 +513,7 @@ export default function Home( props ) {
               <ScrollView style={{margin: '1%'}}>
                 <View style={{alignItems: 'center', marginTop: '10%' }}>
                   <TouchableOpacity style={{marginTop: '5%', backgroundColor: '#FFFFFF', padding: 10, borderRadius: 5, width: '90%'}}>
-                    <Text style={{backgroundColor: '#FFFFFF', fontWeight: '500', color: "#0b0e26", fontSize: 20}}>MODAL{exercicio?.nome_exercicio_ingles}</Text>
+                    <Text style={{backgroundColor: '#FFFFFF', fontWeight: '500', color: "#0b0e26", fontSize: 20}}>{exercicio?.nome_exercicio_ingles}</Text>
                     <Text style={{backgroundColor: '#FFFFFF', fontWeight: '500', color: "#0b0e26", fontSize: 14}}>{exercicio?.nome_exercicio_portugues}</Text>
                   </TouchableOpacity>
 
