@@ -1,15 +1,106 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { NavigationContainer } from '@react-navigation/native';
 
 const Stack = createStackNavigator();
+const Tab = createMaterialBottomTabNavigator();
 
 import Login from './pages/Login/index';
 import Home from './pages/Home';
 import Speech from './pages/Speech';
 import CheckoutMP from './pages/CheckoutMP';
+import Page1 from './pages/Page1';
+import Page2 from './pages/Page2';
 
 const Drawer = createDrawerNavigator();
+
+/*
+ <Tab.Screen name="Page1" component={Page1} 
+            options={{
+                tabBarLabel: "trainings",
+                tabBarIcon: () => (
+                    <Icon name="gas-station-outline" color={'#000'} size={26} />
+                    )
+                }} 
+            />
+*/
+
+const HomeTabs = () => {
+    return (
+        <Tab.Navigator 
+        initialRouteName=""
+        activeColor={'#000'}
+        barStyle={{backgroundColor: 'red'}}>
+            <Tab.Screen name="Home" component={Home} 
+            options={{
+                tabBarLabel: "Home",
+                tabBarIcon: () => (
+                    <Icon name="home-variant-outline" color={'#000'} size={26} />
+                    )
+                }} 
+            />
+            <Tab.Screen name="Page1" component={Page1} 
+            options={{
+                tabBarLabel: "Dicionário",
+                tabBarIcon: () => (
+                    <Icon name="gas-station-outline" color={'#000'} size={26} />
+                    )
+                }} 
+            />
+            <Tab.Screen name="Login" component={Login} 
+            options={{
+                tabBarLabel: "Perfil",
+                 
+                tabBarIcon: () => (
+                    <Icon name="clipboard-list-outline" color={'#000'} size={26} />
+                    )
+                }} 
+            />
+            
+
+           
+        </Tab.Navigator>
+    )
+}
+/*
+   <StatusBar
+            barStyle = "default"
+            hidden = {false}
+            backgroundColor = "#E5E5E5"
+            translucent = {false}
+            networkActivityIndicatorVisible = {true}
+          />
+*/
+
+const RoutesOptions = () => {
+    return (
+             
+            <Stack.Navigator>
+   
+    
+              <Stack.Screen
+                name="CheckoutMP"
+                options={{headerShown: false}}
+                component={HomeTabs}
+                 />
+
+                <Stack.Screen
+                name="Page2"
+                component={Page2}
+                options={{headerShown: false}}
+                />
+
+    
+         
+    
+
+            </Stack.Navigator>
+            
+          )
+}
 
 
 
@@ -23,7 +114,7 @@ const Drawer = createDrawerNavigator();
 */
 
 
-const RoutesOptions = () => {
+const RoutesOptionsNao = () => {
     return(
         <Drawer.Navigator>
             
