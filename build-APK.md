@@ -1,7 +1,7 @@
 Gerando o APK e AAB para instalar em outros dispositivos - Curso de React Native - Aula 46
 
 Na aula de hoje do curso de React Native, vamos aprender como gerar os arquivos APK e AAB para poder distribuir e instalar em outros dispositivos Android.
-    
+
 ----- GUIA PASSO-A-PASSO PARA GERAÇÃO DO APK E DO AAB -----
 
 Por padrão existe um APK na pasta "...\android\app\build\outputs\apk\debug" que é gerado para instalar o app no emulador durante o processo de desenvolvimento
@@ -9,8 +9,10 @@ Por padrão existe um APK na pasta "...\android\app\build\outputs\apk\debug" que
 ---- Atualizar Gradle ----
 
 1) confira a versão atual do seu gradle
-./gradle --version
-./gradlew --version
+1.1: Entrar na pasta Android 
+1.2 Comando: ./gradlew --version
+
+#1.2 Comando: ./gradle --version
 
 2) No site "gradle.org/releases" confira a versão mais atual e digite o comando
 ./gradlew wrapper --gradle-version 6.7.1 (ou a última versão disponível)
