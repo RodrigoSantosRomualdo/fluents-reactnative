@@ -9,6 +9,7 @@ import apiComparaText from '../../services/compareText';
 import * as Progress from 'react-native-progress';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Sound from 'react-native-sound';
+import index from '../../config/index.json'
 
 import Voice from 'react-native-voice';
 	let audio;
@@ -66,7 +67,7 @@ export default function Home( props ) {
           await setTemaEscolhido();
 
           console.log('------ CHAMOU O USEEFFECT QUANDO VOLTA DA TELA SPEECH ------')
-          const resultTemas = await apiTemas.post('tema/buscar')
+          const resultTemas = await apiTemas.post('tema/buscar', {padrao: index.padrao,})
          // console.log('resultTemas.data ',resultTemas.data[0].nome)
           setTemas(resultTemas.data)
           console.log('Recarregou o USEEFFECT HOME')
@@ -96,7 +97,7 @@ export default function Home( props ) {
         setModalVisibleNivel(true)
         console.log('temaEscolhido: ',temaSelecionado)
         setTemaEscolhido(temaSelecionado)
-        const resultTemas = await apiTemas.post('tema-nivel/buscar',{ tema_aprendizado: temaSelecionado } )
+        const resultTemas = await apiTemas.post('tema-nivel/buscar',{padrao: index.padrao, tema_aprendizado: temaSelecionado } )
            // console.log('resultTemas.data ',resultTemas.data[0].nome)
            setTemasNivel(resultTemas.data)
         //navigation.navigate('Exercise Page', {aprender: })
@@ -123,6 +124,7 @@ export default function Home( props ) {
       
 
       const result = await apiTemas.post('atividade/buscar-atividade', {
+        padrao: index.padrao,
         tema_aprendizado: temaEscolhido,
         nivel_disponivel: nivel_disponivel,
         ordem: pages
@@ -161,7 +163,7 @@ export default function Home( props ) {
                  <FlatList 
                  data={temasNivel}
                  keyExtractor={(item) => item._id.toString()}
-                 style={{width: '100%'}}
+                 style={{width: '100%', height: '100%'}}
                  showsHorizontalScrollIndicator={false}
                  renderItem={({ item }) => (
                     <TouchableOpacity style={{marginTop: '5%' ,borderRadius: 35,width: '80%', marginLeft: '10%', marginRight: '10%', height: 50, 
@@ -222,6 +224,7 @@ export default function Home( props ) {
         console.log('DADOS DO INGLES ', textInglesComparacao)
         const response = await  apiComparaText.post("",
          {
+          padrao: index.padrao,
           textIngles: textInglesComparacao, 
           speechTextUser : textUserString
         })
@@ -278,6 +281,7 @@ export default function Home( props ) {
 
       const buscarExercicio = async (ValorPages) => {
         const result = await apiTemas.post('atividade/buscar-atividade', {
+          padrao: index.padrao,
           tema_aprendizado: temaEscolhido,
           nivel_disponivel: nivelDisponivelString,
           ordem: ValorPages
@@ -299,6 +303,7 @@ export default function Home( props ) {
     
           console.log('O QUE ESTÀ SENDO ENVIADO PARA API DE NIVEL:::: ', stringResultSomaNivel)
           const result = await apiTemas.post('atividade/buscar-atividade', {
+            padrao: index.padrao,
             tema_aprendizado: temaEscolhido,
             nivel_disponivel: stringResultSomaNivel,
             ordem: 1
@@ -646,20 +651,28 @@ export default function Home( props ) {
             }
 
             {temas && 
-                
-                 <FlatList 
+            <View>
+              <View style={{width: '100%', alignItems: 'center', }}>
+                <Text style={{fontSize: 20, fontWeight: '600', color: '#FFF', marginTop: '3%', marginBottom: '2%'}}>Selecione o tema para aprender</Text>
+            </View>
+
+            <FlatList 
                  data={temas}
                  keyExtractor={(item) => item._id.toString()}
                  showsHorizontalScrollIndicator={false}
-                 
+                 style={{height: '92%'}}
                  renderItem={({ item }) => (
                    
-                    <TouchableOpacity style={{marginTop: '8%' ,borderRadius: 40,width: '80%', marginLeft: '10%', marginRight: '10%', height: 50, 
+                    <TouchableOpacity style={{marginTop: '2%', marginBottom: '2%' ,borderRadius: 40,width: '80%', marginLeft: '10%', marginRight: '10%', height: 50, 
                     backgroundColor: '#E5E5E5', justifyContent: 'center', alignItems: 'center',}} onPress={() => verificacaoPremium(item.nome) }>
                         <Text style={{fontSize: 20, fontWeight: '700', color: "#0b0e26"}}>{item.nome}</Text>
                     </TouchableOpacity>
                  )}                
                  />
+
+            </View>
+                
+                 
             }
            
         </View>

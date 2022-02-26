@@ -1,73 +1,15 @@
-/*
-
-NÂO USADO MAIS
-
-NÂO USADO MAIS
-
-NÂO USADO MAIS
-
-NÂO USADO MAIS
-
-NÂO USADO MAIS
-
-NÂO USADO MAIS
-
-NÂO USADO MAIS
-
-NÂO USADO MAIS
-
-NÂO USADO MAIS
-
-NÂO USADO MAIS
-
-NÂO USADO MAIS
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
-
-
 import React, {useEffect, useState  } from 'react';
-import { View, Text, Alert, ScrollView, FlatList, TouchableOpacity, Modal, Pressable, Button, TextInput, StyleSheet  } from 'react-native';
-import { ActivityIndicator } from 'react-native-paper';
-import apiTemas from './../../services/temas';
+import { View, Text, Alert, ActivityIndicator, ScrollView, FlatList, TouchableOpacity, Modal, Pressable, Button, TextInput, StyleSheet  } from 'react-native';
+import apiTemas from '../../services/temas';
 import { useNavigation } from '@react-navigation/native';
 import config from '../../config';
 import { WebView } from 'react-native-webview';
 import apiCheckout from '../../services/checkoutMP';
-import storegeUser from '../../services/storegeUser';
 import apiUsers from '../../services/users';
+import storegeUser from '../../services/storegeUser';
 import moment from 'moment';
 import index from '../../config/index.json'
-export default function CheckoutMP( props ) {
+export default function Perfil( props ) {
 
     const navigation = useNavigation();
     
@@ -76,18 +18,25 @@ export default function CheckoutMP( props ) {
     const [resultPremium, setResultPremium] = useState(false);
     const [validadeDatePremium, setValidadeDatePremium] = useState();
     const [controleBackMP, setControleBackMP] = useState(1);
+    const [dataPremium, setDataPremium] = useState('');
 
     
     useEffect(() => {
         (async () => {
             console.log("EXECUTOU O USEEFFECT  MERCADO PAGO")
+            const dataPremium = await apiUsers.post('/datapremium',{padrao: index.padrao})
+            console.log('dataPremium', dataPremium.data)
+            const { data } = dataPremium.data;
+            console.log('datadatadatadatadatadata ', data)
+            await setDataPremium(data)
             //await storegeUser.armazenarPremiumUser('premium', 'false')
             const resultPremiumStorage = await storegeUser.buscarPremiumUser('premium')
             const email = await storegeUser.buscarUserLogin('store');
             console.log('resultPremium: ', resultPremiumStorage)
-            if (resultPremiumStorage === 'false') {
+            console.log('resultPremiumStorage: ', )
+
+           /* if (resultPremiumStorage === 'false') {
                  const data = await apiCheckout.post('',{
-                     padrao: index.padrao,
                      email: email
                  })
                  console.log(data.data)
@@ -97,7 +46,6 @@ export default function CheckoutMP( props ) {
                 setResultPremium(true)
                 
                 const findUSer = await apiUsers.post('finduser', {
-                    padrao: index.padrao,
                     email: email
                 })
                 console.log('findUSer: ', findUSer.data.data[0].data_premium)
@@ -105,7 +53,7 @@ export default function CheckoutMP( props ) {
                 const dataMoment = moment(findUSer.data.data[0].data_premium).format("DD/MM/YYYY");
                 //console.log('dataMoment: ', dataMoment)
                 setValidadeDatePremium(dataMoment)
-            }  
+            }   */
 
 
             //storegeUser.armazenarPremiumUser()
@@ -135,7 +83,7 @@ export default function CheckoutMP( props ) {
 
         return Alert.alert(
 			"Mensagem",
-			"Não é possível comprar o pacote premium, apenas a partir do dia 30/06/2022",
+			`Não é possível comprar o pacote premium, apenas a partir do dia ${dataPremium}`,
 			[
 				{
 					text: "Ok",
@@ -156,10 +104,10 @@ export default function CheckoutMP( props ) {
                 console.log('ENTROU DENTRO DO IF DO APROVED')
                 await storegeUser.armazenarPremiumUser('premium', 'true')
 
-                await apiUsers.post('premium', { padrao: index.padrao, email: email })
+                await apiUsers.post('premium', { email: email })
                 //console.log('resultPremium ' , resultPremiumAPI)
                 const findUSer = await apiUsers.post('finduser', {
-                    padrao: index.padrao, email: email })
+                    email: email })
 
                 const dataMoment = moment(findUSer.data.data[0].data_premium).format("DD/MM/YYYY");
                 //console.log('dataMoment: ', dataMoment)
@@ -206,7 +154,6 @@ export default function CheckoutMP( props ) {
     }  
     
     async function modalCheckout() {
-        console.log('ENTROU AQUI')
         setModalVisibleCheckout(true)
     /*    const data = await apiCheckout.post('',{})
         console.log(data.data)
@@ -247,9 +194,10 @@ export default function CheckoutMP( props ) {
     //  Obtenha Premium e fique sem ver anúncio durante 1 ano por 9,99 R$
     return (
         <View style={{backgroundColor: '#6877e8', width: '100%', height: '100%'}}>
+            
             <View style={{margin: '5%', marginTop: '10%'}}>
                 <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 17}}>
-                Premium liberado até 01/03/2022.
+                Premium liberado até {dataPremium}.
                 </Text>
                 <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 17}}>
                 É possível acessar todos os temas sem limitação!
@@ -268,6 +216,7 @@ export default function CheckoutMP( props ) {
                  <Text style={{fontSize: 30, color: '#FFF', fontWeight: '800'}}>Checkout Premium</Text>
                 </TouchableOpacity>
             </View>
+            
         </View>
       
     )

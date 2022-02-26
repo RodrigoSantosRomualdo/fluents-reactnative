@@ -4,15 +4,24 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NavigationContainer } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
 
+// NOVAS TELAS
+import HomeNovo from './pages/HomeNovo';
+
+// TELAS ANTIGAS
+
 import Login from './pages/Login/index';
 import Home from './pages/Home';
+import Perfil from './pages/Perfil';
 import Speech from './pages/Speech';
 import CheckoutMP from './pages/CheckoutMP';
-import Page1 from './pages/Page1';
+import Dicionario from './pages/Dicionario';
+import DicionarioLista from './pages/DicionarioLista';
+import DicionarioTreinamento from './pages/DicionarioTreinamento';
 import Page2 from './pages/Page2';
 
 const Drawer = createDrawerNavigator();
@@ -32,36 +41,39 @@ const HomeTabs = () => {
     return (
         <Tab.Navigator 
         initialRouteName=""
-        activeColor={'#000'}
-        barStyle={{backgroundColor: 'red'}}>
-            <Tab.Screen name="Home" component={Home} 
+        activeColor={'#E5E5E5'}
+        
+        barStyle={{backgroundColor: '#6877e8',}}>
+            
+            <Tab.Screen name="HomeNovo" component={HomeNovo} 
             options={{
                 tabBarLabel: "Home",
                 tabBarIcon: () => (
-                    <Icon name="home-variant-outline" color={'#000'} size={26} />
+                    <Icon name="home-variant-outline" color={'#E5E5E5'} size={24} />
                     )
                 }} 
             />
-            <Tab.Screen name="Page1" component={Page1} 
+
+            {/*  
+            <Tab.Screen name="Dicionario" component={Dicionario} 
             options={{
-                tabBarLabel: "Dicionário",
+                tabBarLabel: "Dicionario",
                 tabBarIcon: () => (
                     <Icon name="gas-station-outline" color={'#000'} size={26} />
                     )
                 }} 
-            />
-            <Tab.Screen name="Login" component={Login} 
+            /> */}
+            <Tab.Screen name="Perfil" component={Perfil} 
             options={{
                 tabBarLabel: "Perfil",
                  
                 tabBarIcon: () => (
-                    <Icon name="clipboard-list-outline" color={'#000'} size={26} />
+                    <Ionicons name="person-circle-outline" size={24} color={'#E5E5E5'} />
                     )
                 }} 
             />
-            
 
-           
+
         </Tab.Navigator>
     )
 }
@@ -80,7 +92,8 @@ const RoutesOptions = () => {
              
             <Stack.Navigator>
    
-    
+            
+
               <Stack.Screen
                 name="CheckoutMP"
                 options={{headerShown: false}}
@@ -93,8 +106,26 @@ const RoutesOptions = () => {
                 options={{headerShown: false}}
                 />
 
+                <Stack.Screen
+                name="Home"
+                options={{headerShown: false}}
+                component={Home}
+                 />
+
+                <Stack.Screen
+                name="DicionarioLista"
+                options={{headerShown: false}}
+                component={DicionarioLista}
+                 />
+
+                <Stack.Screen
+                name="DicionarioTreinamento"
+                options={{headerShown: false}}
+                component={DicionarioTreinamento}
+                 />
+
     
-         
+
     
 
             </Stack.Navigator>

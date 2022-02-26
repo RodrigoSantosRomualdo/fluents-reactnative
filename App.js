@@ -12,6 +12,9 @@ import storegeUser from './src/services/storegeUser';
 import { loginStyl } from './src/pages/Login/loginStyle';
 import { registerStyle } from './src/pages/Register/regidterStyle';
 import apiUsers from './src/services/users';
+import index from './src/config/index.json';
+console.log('index: ', index.padrao)
+
 //import useAsyncStorage  from '@react-native-community/async-storage'
 
 export default function App({navigation}) {
@@ -50,13 +53,13 @@ export default function App({navigation}) {
 				console.log('ENTROU NO IF', result)
 				const dataFindUser = await apiUsers.post('finduser', {
                     //email: 'rodrigordromualdo@gmail.com'
+                    padrao: index.padrao,
                     email: result
                 })
 
                 console.log('dataFindUser.data.data[0]?.premium ---> ', dataFindUser.data.data[0])
 
                   const resubuscarPremiumUserlt = await storegeUser.buscarPremiumUser('premium');
-                  console.log('resubuscarPremiumUserlt ', resubuscarPremiumUserlt)
                 if (dataFindUser.data.data[0]?.premium === undefined || dataFindUser.data.data[0]?.premium === false) {
                     console.log('É UNDEFINED deve ser false LOCALSTORAGE -->')
                     console.log('IF')
@@ -79,9 +82,11 @@ export default function App({navigation}) {
 	
 	const Carregando =  () => {
 		return(
-			<View style={{justifyContent: 'center', alignItems: 'center', alignContent: 'center'}}>
+			<View style={{justifyContent: 'center', alignItems: 'center', alignContent: 'center',}}>
+                <View style={{marginTop: '40%'}}>
 				<ActivityIndicator size="large" color="#00ff00" />
 				<Text>Carregando...</Text>
+                </View>
 			</View>
 		)
 	} 
@@ -130,6 +135,7 @@ export default function App({navigation}) {
 
 					if (values.passwordForgot.length > 0) {
 						const resultForgot = await apiUsers.post('recupera-password',{
+                            padrao: index.padrao,
 							email: values.passwordForgot,
 						})
 						if (resultForgot.data.error === false) {
@@ -164,6 +170,7 @@ export default function App({navigation}) {
                        
 					
                         const resultCreate = await apiUsers.post('create',{
+                            padrao: index.padrao,
 							nome: values.nomeRegister,
 							email: values.emailRegister,
 							password: values.passwordRegister,
@@ -193,6 +200,7 @@ export default function App({navigation}) {
                     const resultLogin = await apiUsers.post('login',{
                        // email: 'rodrigordromualdo@gmail.com',
                        // password: '12345678'
+                        padrao: index.padrao,
                         email: values.email,
                         password: values.password
                     })  
@@ -215,6 +223,7 @@ export default function App({navigation}) {
                     } else if (resultLogin.data.status === "SUCCESS" && resultLogin.data.email !== undefined) {
                         const dataFindUser = await apiUsers.post('finduser', {
                             //email: 'rodrigordromualdo@gmail.com'
+                            padrao: index.padrao,
                             email: values.email
                         })
 
@@ -424,7 +433,7 @@ export default function App({navigation}) {
 			<Routes/>
 		</NavigationContainer> : <RouterLogin />
     }
-
+  //         <View><Text>INICIOU AQUI</Text></View>
 /*
 const Router = () => {
 	return (

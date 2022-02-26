@@ -4,7 +4,11 @@ import { Button, FlatList,Modal, Pressable , TextInput, TouchableOpacity, StyleS
 
 export default function Page2() {
     return (
-    <View><Text>Primeira PAGE</Text></View>
+    <View>
+        <View>
+            <Text style={{}}>Recomendado</Text>
+        </View>
+    </View>
 
     )
 }

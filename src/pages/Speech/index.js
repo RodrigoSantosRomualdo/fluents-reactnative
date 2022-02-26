@@ -2,6 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import Tts from 'react-native-tts';
 import apiComparaText from '../../services/compareText';
+import index from '../../config/index.json';
 import apiTemas from '../../services/temas';
 import * as Progress from 'react-native-progress';
 import Home from '../Home'
@@ -341,6 +342,7 @@ const Speech = ( props ) => {
 		console.log('DADOS DO INGLES ', textInglesComparacao)
 		const response = await  apiComparaText.post("",
 		 {
+			padrao: index.padrao,
 			textIngles: textInglesComparacao, 
 			speechTextUser : textUserString
 		})
